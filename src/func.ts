@@ -1,4 +1,4 @@
-import { Plugin } from 'rollup';
+import { Plugin, TransformPluginContext } from 'rollup';
 import { createFilter } from '@rollup/pluginutils';
 import { replaceIdentifiers } from './core/replace.js';
 import { normalize } from './core/options.js';
@@ -12,33 +12,43 @@ import { normalize } from './core/options.js';
  * __PKG_INFO__
  */
 export function funcMacro(options?: Partial<FuncMacroOptions>): Plugin {
-  const { identifier, include, exclude, fallback, stringReplace } = normalize(options);
+  const opts = normalize(options);
 
-  const filter = createFilter(include, exclude);
+  const filter = createFilter(opts.include, opts.exclude);
 
   return {
     name: 'func-macro',
-
     transform(code: string, id: string) {
       if (!filter(id)) {
         return null;
       }
 
       // Check if the code contains our identifier
-      if (!code.includes(identifier)) {
+      if (!code.includes(opts.identifier)) {
         return null;
       }
 
-      const transformedCode = replaceIdentifiers(code, identifier, fallback, stringReplace);
-
-      if (transformedCode === code) {
-        return null;
+      try {
+        return transform.call(this, opts, code);
+      } catch (error) {
+        console.log(error);
+        this.error(`Error processing file ${id}: ${error}`);
       }
-
-      return {
-        code: transformedCode,
-        map: null, // For simplicity, not generating source maps
-      };
     },
   };
+}
+function transform(this: TransformPluginContext, options: FuncMacroOptions, code: string) {
+  // Check if the code contains our identifier
+  if (!code.includes(options.identifier)) {
+    return null;
+  }
+
+  const transformed = replaceIdentifiers(
+    code,
+    options.identifier,
+    options.fallback,
+    options.stringReplace
+  );
+
+  return transformed === code ? null : { code: transformed, map: null };
 }

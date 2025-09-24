@@ -49,6 +49,7 @@ export default {
       include: ['**/*.js', '**/*.ts'], // Files to transform (default)
       exclude: ['node_modules/**'], // Files to exclude (default)
       fallback: identifier, // Fallback when no function found (default is equal to identifier)
+      stringReplace: true, // Whether to replace inside string literals (default: true)
     }),
   ],
 };

@@ -107,7 +107,7 @@ const declaration = {
     replace(replaceOpts),
     dts({ tsconfig }),
     dtsMerger({
-      exclude: ['src/private.d.ts'],
+      exclude: [['src', 'types', 'private.d.ts']],
       replace: replaceOpts,
       replaceLiteral: replaceLiteralOpts,
     }),
