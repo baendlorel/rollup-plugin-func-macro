@@ -147,7 +147,7 @@ function testFunc() {
   });
 
   it('should handle method definitions with computed properties', () => {
-    const plugin = funcMacro();
+    const plugin = funcMacro({});
     const code = `
 class TestClass {
   ['dynamicMethod']() {
@@ -158,6 +158,6 @@ class TestClass {
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
     // For computed properties, should fallback to default
-    expect(result.code).toContain('"unknown"');
+    expect(result.code).toContain('"__func__"');
   });
 });
