@@ -7,12 +7,7 @@ import { normalize } from './options.js';
  * Rollup plugin for function macro replacement
  */
 export function funcMacro(options?: Partial<FuncMacroOptions>): Plugin {
-  const {
-    identifier = '__func__',
-    include = ['**/*.js', '**/*.ts'],
-    exclude = ['node_modules/**'],
-    fallback = 'unknown',
-  } = normalize(options);
+  const { identifier, include, exclude, fallback } = normalize(options);
 
   const filter = createFilter(include, exclude);
 

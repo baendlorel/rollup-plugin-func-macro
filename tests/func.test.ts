@@ -21,8 +21,8 @@ function testFunction() {
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect((result as any).code).toContain('"testFunction"');
-    expect((result as any).code).not.toContain('__func__');
+    expect(result.code).toContain('"testFunction"');
+    expect(result.code).not.toContain('__func__');
   });
 
   it('should replace __func__ in function expression', () => {
@@ -34,8 +34,8 @@ const myFunc = function namedFunc() {
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect((result as any).code).toContain('"namedFunc"');
-    expect((result as any).code).not.toContain('__func__');
+    expect(result.code).toContain('"namedFunc"');
+    expect(result.code).not.toContain('__func__');
   });
 
   it('should replace __func__ in class method', () => {
@@ -49,8 +49,8 @@ class TestClass {
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect((result as any).code).toContain('"myMethod"');
-    expect((result as any).code).not.toContain('__func__');
+    expect(result.code).toContain('"myMethod"');
+    expect(result.code).not.toContain('__func__');
   });
 
   it('should use fallback when no function name found', () => {
@@ -59,7 +59,7 @@ class TestClass {
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect((result as any).code).toContain('"fallback_name"');
+    expect(result.code).toContain('"fallback_name"');
   });
 
   it('should handle custom identifier', () => {
@@ -71,8 +71,8 @@ function testFunc() {
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect((result as any).code).toContain('"testFunc"');
-    expect((result as any).code).not.toContain('__function_name__');
+    expect(result.code).toContain('"testFunc"');
+    expect(result.code).not.toContain('__function_name__');
   });
 
   it('should skip arrow functions', () => {
@@ -87,7 +87,7 @@ function outerFunc() {
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
     // Should find outerFunc, not the arrow function
-    expect((result as any).code).toContain('"outerFunc"');
+    expect(result.code).toContain('"outerFunc"');
   });
 
   it('should handle nested functions correctly', () => {
@@ -103,8 +103,8 @@ function outerFunc() {
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect((result as any).code).toContain('"outerFunc"');
-    expect((result as any).code).toContain('"innerFunc"');
+    expect(result.code).toContain('"outerFunc"');
+    expect(result.code).toContain('"innerFunc"');
   });
 
   it('should not transform files that do not match filter', () => {
@@ -139,7 +139,7 @@ function testFunc() {
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    const transformedCode = (result as any).code;
+    const transformedCode = result.code;
     expect(transformedCode).toContain('"testFunc"');
     expect(transformedCode).not.toContain('__func__');
     // Should replace both occurrences
@@ -158,6 +158,6 @@ class TestClass {
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
     // For computed properties, should fallback to default
-    expect((result as any).code).toContain('"unknown"');
+    expect(result.code).toContain('"unknown"');
   });
 });

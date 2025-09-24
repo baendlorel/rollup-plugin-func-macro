@@ -3,7 +3,7 @@ export function normalize(options: Partial<FuncMacroOptions> | undefined): FuncM
     identifier = '__func__',
     include = ['**/*.js', '**/*.ts'],
     exclude = ['node_modules/**'],
-    fallback = 'unknown',
+    fallback = identifier,
   } = Object(options);
 
   if (typeof identifier !== 'string' || !identifier) {
