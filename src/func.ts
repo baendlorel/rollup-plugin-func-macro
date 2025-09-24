@@ -28,28 +28,19 @@ export function funcMacro(options?: Partial<FuncMacroOptions>): Plugin {
         return null;
       }
 
-      try {
-        return transform.call(this, opts, code);
-      } catch (error) {
-        console.log(error);
-        this.error(`Error processing file ${id}: ${error}`);
+      // Check if the code contains our identifier
+      if (!code.includes(opts.identifier)) {
+        return null;
       }
+
+      const transformed = replaceIdentifiers(
+        code,
+        opts.identifier,
+        opts.fallback,
+        opts.stringReplace
+      );
+
+      return transformed === code ? null : { code: transformed, map: null };
     },
   };
-}
-
-function transform(this: TransformPluginContext, options: FuncMacroOptions, code: string) {
-  // Check if the code contains our identifier
-  if (!code.includes(options.identifier)) {
-    return null;
-  }
-
-  const transformed = replaceIdentifiers(
-    code,
-    options.identifier,
-    options.fallback,
-    options.stringReplace
-  );
-
-  return transformed === code ? null : { code: transformed, map: null };
 }
