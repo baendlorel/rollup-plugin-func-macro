@@ -46,21 +46,10 @@ export default {
       identifier: '__func__', // Custom identifier (default: '__func__')
       include: ['**/*.js', '**/*.ts'], // Files to transform (default)
       exclude: ['node_modules/**'], // Files to exclude (default)
-      fallback: 'unknown', // Fallback when no function found (default)
+      fallback: identifier, // Fallback when no function found (default is equal to identifier)
     }),
   ],
 };
-```
-
-### Configuration Options
-
-```js
-funcMacro({
-  identifier: '__func__', // Custom identifier (default: '__func__')
-  include: ['**/*.js', '**/*.ts'], // Files to transform (default)
-  exclude: ['node_modules/**'], // Files to exclude (default)
-  fallback: identifier, // Fallback when no function found (default is equal to identifier)
-});
 ```
 
 ## Supported Function Types 📋
