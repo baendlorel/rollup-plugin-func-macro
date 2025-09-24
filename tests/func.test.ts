@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest';
-import funcMacro from '../src/func.js';
+import { funcMacro } from '../src/func.js';
 
 describe('funcMacro', () => {
   const callTransform = (plugin: any, code: string, id: string) => {

@@ -6,8 +6,8 @@
 		"email": "futami16237@gmail.com"
 	},
 	"purpose": "rollup-plugin",
-	"description": "rollup-plugin-func-macro",
-	"description_zh": "rollup-plugin-func-macro",
+	"description": "Using __func__ like C++ to get current function name(ignores arrow function context)",
+	"description_zh": "使用类似C++的__func__来获取当前函数名(忽略箭头函数上下文)",
 	"type": "module",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.mjs",
