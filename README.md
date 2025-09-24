@@ -27,6 +27,8 @@ npm install --save-dev rollup-plugin-func-macro
 pnpm add -D rollup-plugin-func-macro
 ```
 
+> 🎯 **TypeScript Support**: After installation, you can add `import 'rollup-plugin-func-macro'` in your global.d.ts file. Then `__func__` will be available in your projects with full type support! ✨
+
 ## Usage 🛠️
 
 ### Basic Setup
@@ -104,6 +106,32 @@ class Logger {
   }
 }
 ```
+
+### String Replacement ✨
+
+**NEW!** By default, `__func__` inside string literals and template literals will also be replaced! 🎉
+
+**Input:**
+
+```js
+function debugFunction() {
+  console.log('Debug: __func__ started');
+  console.log(`Function __func__ with ${param}`);
+  const name = __func__; // Still works as identifier
+}
+```
+
+**Output:**
+
+```js
+function debugFunction() {
+  console.log('Debug: debugFunction started');
+  console.log(`Function debugFunction with ${param}`);
+  const name = 'debugFunction';
+}
+```
+
+You can disable this behavior by setting `stringReplace: false` in options. (◕‿◕)
 
 ## Contributing 🤝
 

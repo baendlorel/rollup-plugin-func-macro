@@ -5,7 +5,12 @@ import { findFunctionNameAtPosition } from './find-name.js';
 /**
  * Replace identifiers in the code with function names
  */
-export function replaceIdentifiers(code: string, identifier: string, fallback: string): string {
+export function replaceIdentifiers(
+  code: string,
+  identifier: string,
+  fallback: string,
+  stringReplace: boolean = true
+): string {
   let ast: Node;
 
   try {
@@ -32,6 +37,68 @@ export function replaceIdentifiers(code: string, identifier: string, fallback: s
         });
       }
     },
+
+    // Handle string literals if stringReplace is enabled
+    Literal(node: any) {
+      if (stringReplace && typeof node.value === 'string' && node.value.includes(identifier)) {
+        const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
+        const newValue = node.value.replace(
+          new RegExp(escapeRegExp(identifier), 'g'),
+          functionName
+        );
+        replacements.push({
+          start: node.start,
+          end: node.end,
+          replacement: JSON.stringify(newValue),
+        });
+      }
+    },
+
+    // Handle template literals if stringReplace is enabled
+    TemplateLiteral(node: any) {
+      if (stringReplace && node.quasis) {
+        const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
+        let hasReplacement = false;
+
+        for (const quasi of node.quasis) {
+          if (quasi.value && quasi.value.raw && quasi.value.raw.includes(identifier)) {
+            hasReplacement = true;
+            break;
+          }
+        }
+
+        if (hasReplacement) {
+          // For template literals, we need to reconstruct the entire template
+          let templateString = '`';
+          let expressionIndex = 0;
+
+          for (let i = 0; i < node.quasis.length; i++) {
+            const quasi = node.quasis[i];
+            let rawValue = quasi.value.raw;
+            rawValue = rawValue.replace(new RegExp(escapeRegExp(identifier), 'g'), functionName);
+            templateString += rawValue;
+
+            if (!quasi.tail && node.expressions[expressionIndex]) {
+              templateString +=
+                '${' +
+                code.slice(
+                  node.expressions[expressionIndex].start,
+                  node.expressions[expressionIndex].end
+                ) +
+                '}';
+              expressionIndex++;
+            }
+          }
+          templateString += '`';
+
+          replacements.push({
+            start: node.start,
+            end: node.end,
+            replacement: templateString,
+          });
+        }
+      }
+    },
   });
 
   // Apply replacements from end to start to maintain positions
@@ -44,4 +111,11 @@ export function replaceIdentifiers(code: string, identifier: string, fallback: s
   }
 
   return result;
+}
+
+/**
+ * Escape special regex characters in a string
+ */
+function escapeRegExp(string: string): string {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

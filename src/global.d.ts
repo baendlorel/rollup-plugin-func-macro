@@ -31,5 +31,11 @@ declare global {
      * Files to exclude, defaults to `[node_modules/✳️✳️]`
      */
     exclude: string | string[];
+
+    /**
+     * Whether to replace identifiers inside string literals
+     * - defaults to `true`
+     */
+    stringReplace: boolean;
   }
 }

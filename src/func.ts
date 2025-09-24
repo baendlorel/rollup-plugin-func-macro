@@ -12,7 +12,7 @@ import { normalize } from './options.js';
  * __PKG_INFO__
  */
 export function funcMacro(options?: Partial<FuncMacroOptions>): Plugin {
-  const { identifier, include, exclude, fallback } = normalize(options);
+  const { identifier, include, exclude, fallback, stringReplace } = normalize(options);
 
   const filter = createFilter(include, exclude);
 
@@ -29,7 +29,7 @@ export function funcMacro(options?: Partial<FuncMacroOptions>): Plugin {
         return null;
       }
 
-      const transformedCode = replaceIdentifiers(code, identifier, fallback);
+      const transformedCode = replaceIdentifiers(code, identifier, fallback, stringReplace);
 
       if (transformedCode === code) {
         return null;
