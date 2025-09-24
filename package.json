@@ -50,6 +50,7 @@
 		"@rollup/plugin-terser": "^0.4.4",
 		"@rollup/plugin-typescript": "^12.1.4",
 		"@types/node": "^24.5.2",
+		"@typescript-eslint/types": "^8.44.1",
 		"@vitest/coverage-v8": "^3.2.4",
 		"oxlint": "^1.17.0",
 		"prettier": "^3.6.2",
@@ -63,8 +64,6 @@
 	},
 	"dependencies": {
 		"@rollup/pluginutils": "^5.3.0",
-		"@typescript-eslint/typescript-estree": "^8.44.1",
-		"acorn": "^8.15.0",
-		"acorn-walk": "^8.3.4"
+		"@typescript-eslint/typescript-estree": "^8.44.1"
 	}
 }

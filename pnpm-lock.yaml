@@ -14,12 +14,6 @@ importers:
       '@typescript-eslint/typescript-estree':
         specifier: ^8.44.1
         version: 8.44.1(typescript@5.9.2)
-      acorn:
-        specifier: ^8.15.0
-        version: 8.15.0
-      acorn-walk:
-        specifier: ^8.3.4
-        version: 8.3.4
     devDependencies:
       '@rollup/plugin-alias':
         specifier: ^5.1.1
@@ -42,6 +36,9 @@ importers:
       '@types/node':
         specifier: ^24.5.2
         version: 24.5.2
+      '@typescript-eslint/types':
+        specifier: ^8.44.1
+        version: 8.44.1
       '@vitest/coverage-v8':
         specifier: ^3.2.4
         version: 3.2.4(vitest@3.2.4(@types/node@24.5.2)(terser@5.44.0))
@@ -603,10 +600,6 @@ packages:
 
   '@vitest/utils@3.2.4':
     resolution: {integrity: sha512-fB2V0JFrQSMsCo9HiSq3Ezpdv4iYaXRG1Sx8edX3MwxfyNn83mKiGzOcH+Fkxt4MHxr3y42fQi1oeAInqgX2QA==}
-
-  acorn-walk@8.3.4:
-    resolution: {integrity: sha512-ueEepnujpqee2o5aIYnvHU6C0A42MNdsIDeqy5BydrkuC5R1ZuUFnm27EeFJGoEHJQgn3uleRvmTXaJgfXbt4g==}
-    engines: {node: '>=0.4.0'}
 
   acorn@8.15.0:
     resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
@@ -1613,10 +1606,6 @@ snapshots:
       '@vitest/pretty-format': 3.2.4
       loupe: 3.2.1
       tinyrainbow: 2.0.0
-
-  acorn-walk@8.3.4:
-    dependencies:
-      acorn: 8.15.0
 
   acorn@8.15.0: {}
 
