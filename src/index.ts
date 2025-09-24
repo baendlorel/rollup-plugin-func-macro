@@ -1,2 +1,4 @@
 import './polyfills.js';
-export { funcMacro } from './func.js';
+import { funcMacro } from './func.js';
+
+export default funcMacro;

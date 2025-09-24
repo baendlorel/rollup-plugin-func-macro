@@ -37,6 +37,7 @@ export function funcMacro(options?: Partial<FuncMacroOptions>): Plugin {
     },
   };
 }
+
 function transform(this: TransformPluginContext, options: FuncMacroOptions, code: string) {
   // Check if the code contains our identifier
   if (!code.includes(options.identifier)) {
