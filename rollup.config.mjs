@@ -9,6 +9,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import alias from '@rollup/plugin-alias';
 import terser from '@rollup/plugin-terser';
 import replace from '@rollup/plugin-replace';
+import rollupJson from '@rollup/plugin-json';
 import dts from 'rollup-plugin-dts';
 import dtsMerger from 'rollup-plugin-dts-merger';
 
@@ -61,9 +62,11 @@ const options = [
       replace(replaceOpts),
       resolve(),
       commonjs(),
+      rollupJson(),
+      // fixme 打包后有10mb？
       void terser({
         format: {
-          comments: false, // remove comments
+          comments: true, // remove comments
         },
         compress: {
           reduce_vars: true,
