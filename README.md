@@ -2,8 +2,8 @@
 
 > Using `__func__` like C++ to get current function name (ignores arrow function context) ✨
 
-[![npm version](https://img.shields.io/npm/v/rollup-plugin-func-macro.svg)](https://www.npmjs.com/package/rollup-plugin-func-macro)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![npm version](https://img.shields.io/npm/v/rollup-plugin-func-macro.svg)](https://www.npmjs.com/package/rollup-plugin-func-macro) [![npm downloads](http://img.shields.io/npm/dm/rollup-plugin-func-macro.svg)](https://npmcharts.com/compare/rollup-plugin-func-macro,token-types?start=1200&interval=30)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/59dd6795e61949fb97066ca52e6097ef)](https://www.codacy.com/app/Borewit/rollup-plugin-func-macro?utm_source=github.com&utm_medium=referral&utm_content=Borewit/rollup-plugin-func-macro&utm_campaign=Badge_Grade)
 
 For more awesome packages, check out [my homepage💛](https://baendlorel.github.io/?repoType=npm)
 
