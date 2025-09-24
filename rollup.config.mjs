@@ -14,7 +14,7 @@ import dts from 'rollup-plugin-dts';
 import dtsMerger from 'rollup-plugin-dts-merger';
 
 // custom plugins
-import { replaceLiteralOpts, replaceOpts } from './scripts/plugins/replace.mjs';
+import { replaceLiteralOpts, replaceOpts } from './.scripts/plugins/replace.mjs';
 
 /**
  * @type {import('./package.json')}
