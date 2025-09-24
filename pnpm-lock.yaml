@@ -58,8 +58,8 @@ importers:
         specifier: ^6.2.3
         version: 6.2.3(rollup@4.52.2)(typescript@5.9.2)
       rollup-plugin-dts-merger:
-        specifier: ^1.3.0
-        version: 1.3.0
+        specifier: ^2.0.0
+        version: 2.0.0(rollup@4.52.2)
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
@@ -868,8 +868,8 @@ packages:
     engines: {node: 20 || >=22}
     hasBin: true
 
-  rollup-plugin-dts-merger@1.3.0:
-    resolution: {integrity: sha512-t/Wz9UUxIenZfwMA5YdmfeyI7z1wBh+QI8RZYZs12OvoeHunHKlafzGjCKLjcouGhY9hUafgA8fnq6XRBa/7Ag==}
+  rollup-plugin-dts-merger@2.0.0:
+    resolution: {integrity: sha512-f9dFuHvXPWnmhn8G052cVNBuzgEBwkZ2jBW5WWjwENj271XUbqqkvl3mHT5mjC52xpeGiLTajHpgo+wrREn3+g==}
 
   rollup-plugin-dts@6.2.3:
     resolution: {integrity: sha512-UgnEsfciXSPpASuOelix7m4DrmyQgiaWBnvI0TM4GxuDh5FkqW8E5hu57bCxXB90VvR1WNfLV80yEDN18UogSA==}
@@ -1753,7 +1753,11 @@ snapshots:
       glob: 11.0.3
       package-json-from-dist: 1.0.1
 
-  rollup-plugin-dts-merger@1.3.0: {}
+  rollup-plugin-dts-merger@2.0.0(rollup@4.52.2):
+    dependencies:
+      '@rollup/pluginutils': 5.3.0(rollup@4.52.2)
+    transitivePeerDependencies:
+      - rollup
 
   rollup-plugin-dts@6.2.3(rollup@4.52.2)(typescript@5.9.2):
     dependencies:
