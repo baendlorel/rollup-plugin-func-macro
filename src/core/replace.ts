@@ -1,4 +1,4 @@
-import { Node, parse } from 'acorn';
+import { Identifier, Literal, Node, parse, PrivateIdentifier, TemplateLiteral } from 'acorn';
 import { simple } from 'acorn-walk';
 import { findFunctionNameAtPosition } from './find-name.js';
 
@@ -27,7 +27,7 @@ export function replaceIdentifiers(
 
   // Find all identifier nodes that match our target
   simple(ast, {
-    Identifier(node: any) {
+    Identifier(node: PrivateIdentifier | Identifier) {
       if (node.name === identifier) {
         const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
         replacements.push({
@@ -39,13 +39,10 @@ export function replaceIdentifiers(
     },
 
     // Handle string literals if stringReplace is enabled
-    Literal(node: any) {
+    Literal(node: Literal) {
       if (stringReplace && typeof node.value === 'string' && node.value.includes(identifier)) {
         const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
-        const newValue = node.value.replace(
-          new RegExp(escapeRegExp(identifier), 'g'),
-          functionName
-        );
+        const newValue = node.value.replaceAll(identifier, functionName);
         replacements.push({
           start: node.start,
           end: node.end,
@@ -55,7 +52,7 @@ export function replaceIdentifiers(
     },
 
     // Handle template literals if stringReplace is enabled
-    TemplateLiteral(node: any) {
+    TemplateLiteral(node: TemplateLiteral) {
       if (stringReplace && node.quasis) {
         const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
         let hasReplacement = false;
@@ -75,7 +72,7 @@ export function replaceIdentifiers(
           for (let i = 0; i < node.quasis.length; i++) {
             const quasi = node.quasis[i];
             let rawValue = quasi.value.raw;
-            rawValue = rawValue.replace(new RegExp(escapeRegExp(identifier), 'g'), functionName);
+            rawValue = rawValue.replaceAll(identifier, functionName);
             templateString += rawValue;
 
             if (!quasi.tail && node.expressions[expressionIndex]) {
@@ -111,11 +108,4 @@ export function replaceIdentifiers(
   }
 
   return result;
-}
-
-/**
- * Escape special regex characters in a string
- */
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

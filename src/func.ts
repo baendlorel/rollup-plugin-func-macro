@@ -1,7 +1,7 @@
 import { Plugin } from 'rollup';
 import { createFilter } from '@rollup/pluginutils';
-import { replaceIdentifiers } from './replace.js';
-import { normalize } from './options.js';
+import { replaceIdentifiers } from './core/replace.js';
+import { normalize } from './core/options.js';
 
 /**
  * ## Usage
