@@ -106,7 +106,11 @@ const declaration = {
     alias(aliasOpts),
     replace(replaceOpts),
     dts({ tsconfig }),
-    dtsMerger({ replace: replaceOpts, replaceLiteral: replaceLiteralOpts }),
+    dtsMerger({
+      exclude: ['src/private.d.ts'],
+      replace: replaceOpts,
+      replaceLiteral: replaceLiteralOpts,
+    }),
   ],
 };
 

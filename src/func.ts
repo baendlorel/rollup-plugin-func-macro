@@ -4,7 +4,12 @@ import { replaceIdentifiers } from './replace.js';
 import { normalize } from './options.js';
 
 /**
- * Rollup plugin for function macro replacement
+ * ## Usage
+ * use `funcMacro()` in your Rollup configuration to enable the plugin.
+ *
+ * detailed infomation can be found in the type definition of `options`.
+ *
+ * __PKG_INFO__
  */
 export function funcMacro(options?: Partial<FuncMacroOptions>): Plugin {
   const { identifier, include, exclude, fallback } = normalize(options);
