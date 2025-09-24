@@ -55,44 +55,19 @@ export function replaceIdentifiers(
     TemplateLiteral(node: TemplateLiteral) {
       if (stringReplace && node.quasis) {
         const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
-        let hasReplacement = false;
 
+        // Handle each quasi (string part) separately
         for (const quasi of node.quasis) {
           if (quasi.value && quasi.value.raw && quasi.value.raw.includes(identifier)) {
-            hasReplacement = true;
-            break;
+            const newRawValue = quasi.value.raw.replaceAll(identifier, functionName);
+
+            // Replace the raw content of this quasi
+            replacements.push({
+              start: quasi.start,
+              end: quasi.end,
+              replacement: newRawValue,
+            });
           }
-        }
-
-        if (hasReplacement) {
-          // For template literals, we need to reconstruct the entire template
-          let templateString = '`';
-          let expressionIndex = 0;
-
-          for (let i = 0; i < node.quasis.length; i++) {
-            const quasi = node.quasis[i];
-            let rawValue = quasi.value.raw;
-            rawValue = rawValue.replaceAll(identifier, functionName);
-            templateString += rawValue;
-
-            if (!quasi.tail && node.expressions[expressionIndex]) {
-              templateString +=
-                '${' +
-                code.slice(
-                  node.expressions[expressionIndex].start,
-                  node.expressions[expressionIndex].end
-                ) +
-                '}';
-              expressionIndex++;
-            }
-          }
-          templateString += '`';
-
-          replacements.push({
-            start: node.start,
-            end: node.end,
-            replacement: templateString,
-          });
         }
       }
     },

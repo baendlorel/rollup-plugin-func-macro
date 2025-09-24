@@ -20,3 +20,41 @@
 
 解答:
 如果想要让用户安装了本包后，global.d.ts里的`__func__`就能全局生效不需要引入，可以做到吗,是否要起名为@types/xxx才行？
+
+---
+
+我发现了一个严重的问题。按照我现在这样写的代码，在作为plugin去解析js代码的过程中，会产生这个错误
+
+```text
+vite v7.1.7 building for production...
+✓ 4 modules transformed.
+[static-copy] Copied assets/css to dist/assets
+✗ Build failed in 799ms
+error during build:
+src/background.ts (263:95): Expected ',', got 'open' (Note that you need plugins to import files that are not JavaScript)
+file: /home/aldia/projects/plugins/firefox-workspaces/src/background.ts:263:95
+
+261:         }
+262:         catch (error) {
+263:             console.error(`[__NAME__: ${__func__}]__func__ Failed to open popup window:`, error);
+                                                                                                    ^
+264:         }
+265:     }
+
+    at getRollupError (file:///home/aldia/projects/plugins/firefox-workspaces/node_modules/.pnpm/rollup@4.52.0/node_modules/rollup/dist/es/shared/parseAst.js:401:41)
+    at ParseError.initialise (file:///home/aldia/projects/plugins/firefox-workspaces/node_modules/.pnpm/rollup@4.52.0/node_modules/rollup/dist/es/shared/node-entry.js:14475:28)
+    at convertNode (file:///home/aldia/projects/plugins/firefox-workspaces/node_modules/.pnpm/rollup@4.52.0/node_modules/rollup/dist/es/shared/node-entry.js:16358:10)
+    at convertProgram (file:///home/aldia/projects/plugins/firefox-workspaces/node_modules/.pnpm/rollup@4.52.0/node_modules/rollup/dist/es/shared/node-entry.js:15598:12)
+    at Module.setSource (file:///home/aldia/projects/plugins/firefox-workspaces/node_modules/.pnpm/rollup@4.52.0/node_modules/rollup/dist/es/shared/node-entry.js:17353:24)
+    at async ModuleLoader.addModuleSource (file:///home/aldia/projects/plugins/firefox-workspaces/node_modules/.pnpm/rollup@4.52.0/node_modules/rollup/dist/es/shared/node-entry.js:21371:13)
+ ELIFECYCLE  Command failed with exit code
+```
+
+根据推测，是这一行
+
+```ts
+console.error(`[__NAME__: ${__func__}]__func__ Failed to open popup window:`, error);
+```
+
+导致的，出现的两次**func**导致acorn解析失败，如果只有第一个`${__func__}`或者只有后面的`__func__`，就不会报错。
+但是这个怎么会解析错误？你看看到底是acorn的原因，还是我的原因
