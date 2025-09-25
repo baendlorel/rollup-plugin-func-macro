@@ -2,6 +2,13 @@ import { Identifier, Literal, Node, parse, PrivateIdentifier, TemplateLiteral } 
 import { simple } from 'acorn-walk';
 import { findFunctionNameAtPosition } from './find-name.js';
 
+interface Replacement {
+  start: number;
+  end: number;
+  replacement: string;
+  type: string;
+}
+
 /**
  * Replace identifiers in the code with function names
  */
@@ -19,22 +26,38 @@ export function replaceIdentifiers(
       sourceType: 'module',
     });
   } catch (error) {
-    console.warn('Failed to parse code:', error);
+    console.warn('__NAME__:', error);
     return code;
   }
 
-  const replacements: Array<{ start: number; end: number; replacement: string }> = [];
+  const replacements: Replacement[] = [];
+
+  const isInTemplateLiteralExpression = (node: PrivateIdentifier | Identifier) => {
+    return code[node.start - 2] === '$' && code[node.start - 1] === '{' && code[node.end] === '}';
+  };
 
   // Find all identifier nodes that match our target
   simple(ast, {
     Identifier(node: PrivateIdentifier | Identifier) {
       if (node.name === identifier) {
         const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
-        replacements.push({
-          start: node.start,
-          end: node.end,
-          replacement: `"${functionName}"`,
-        });
+
+        // & Identifier might be in a template literal expression
+        if (isInTemplateLiteralExpression(node)) {
+          replacements.push({
+            start: node.start - 2,
+            end: node.end + 1,
+            replacement: functionName,
+            type: node.type,
+          });
+        } else {
+          replacements.push({
+            start: node.start,
+            end: node.end,
+            replacement: `"${functionName}"`,
+            type: node.type,
+          });
+        }
       }
     },
 
@@ -47,50 +70,67 @@ export function replaceIdentifiers(
           start: node.start,
           end: node.end,
           replacement: JSON.stringify(newValue),
+          type: node.type,
         });
       }
     },
 
     // Handle template literals if stringReplace is enabled
-    TemplateLiteral(node: TemplateLiteral) {
-      if (stringReplace && node.quasis && node.expressions) {
-        const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
+    // TemplateLiteral(node: TemplateLiteral) {
+    //   if (stringReplace && node.quasis && node.expressions) {
+    //     const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
 
-        // Handle expressions that are just the identifier
-        for (const expr of node.expressions) {
-          if (expr.type === 'Identifier' && expr.name === identifier) {
-            // Replace ${identifier} with the function name directly
-            // We need to replace the entire expression including ${}
-            const exprStart = expr.start - 2; // Account for ${
-            const exprEnd = expr.end + 1; // Account for }
-            replacements.push({
-              start: exprStart,
-              end: exprEnd,
-              replacement: functionName,
-            });
-          }
-        }
+    //     // Handle expressions that are just the identifier
+    //     for (const expr of node.expressions) {
+    //       if (expr.type !== 'Identifier' || expr.name !== identifier) {
+    //         continue;
+    //       }
 
-        // Handle each quasi (string part) separately
-        for (const quasi of node.quasis) {
-          if (quasi.value && quasi.value.raw && quasi.value.raw.includes(identifier)) {
-            const newRawValue = quasi.value.raw.replaceAll(identifier, functionName);
+    //       // & It is possible that this entry is handled in `Identifier` above
+    //       const replacement = replacements.find(
+    //         (r) => r.start === expr.start && r.end === expr.end && r.replacement === functionName
+    //       );
 
-            // Replace the raw content of this quasi
-            replacements.push({
-              start: quasi.start,
-              end: quasi.end,
-              replacement: newRawValue,
-            });
-          }
-        }
-      }
-    },
+    //       if (replacement) {
+    //         replacement.start -= 2; // Account for ${
+    //         replacement.end += 1; // Account for
+    //       } else {
+    //         replacements.push({
+    //           start: expr.start - 2, // Account for ${
+    //           end: expr.end + 1, // Account for }
+    //           replacement: functionName,
+    //           type: node.type,
+    //         });
+    //       }
+    //     }
+
+    //     // Handle each quasi (string part) separately
+
+    //     for (let i = 0; i < node.quasis.length; i++) {
+    //       const quasi = node.quasis[i];
+    //       if (!quasi.value.raw.includes(identifier)) {
+    //         continue;
+    //       }
+
+    //       const newRawValue = quasi.value.raw.replaceAll(identifier, functionName);
+    //       // Replace the raw content of this quasi
+    //       replacements.push({
+    //         start: quasi.start,
+    //         end: quasi.end,
+    //         replacement: newRawValue,
+    //         type: node.type,
+    //       });
+    //     }
+    //   }
+    // },
   });
 
   // Apply replacements from end to start to maintain positions
   replacements.sort((a, b) => b.start - a.start);
+  console.log('Replacements:', replacements);
+  console.log('digit:', code.substring(replacements[0].start - 5, replacements[0].end + 5));
 
+  // fixme 这可能会错位
   let result = code;
   for (const replacement of replacements) {
     result =
