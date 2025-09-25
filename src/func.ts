@@ -49,7 +49,7 @@ export function funcMacro(options?: Partial<FuncMacroOptions>): Plugin {
       if (code.includes(opts.fileIdentifier)) {
         const transformed = replaceIdentifiers({
           code: result,
-          identifier: opts.identifier,
+          identifier: opts.fileIdentifier,
           nameGetter: () => filename,
           fallback: opts.fallback,
           stringReplace: opts.stringReplace,

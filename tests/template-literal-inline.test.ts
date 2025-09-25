@@ -1,6 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { replaceIdentifiers } from '../src/core/replace.js';
+import { findFunctionNameAtPosition } from '../src/core/find-name.js';
 import { pr } from './utils.js';
+
+const applyReplace = (code: string) =>
+  replaceIdentifiers({
+    code,
+    identifier: '__func__',
+    nameGetter: findFunctionNameAtPosition,
+    fallback: 'unknown',
+    stringReplace: true,
+  });
 
 describe('Template Literal Inline Expression Replacement', () => {
   it('should replace ${__func__} directly with function name', () => {
@@ -8,7 +18,7 @@ describe('Template Literal Inline Expression Replacement', () => {
                       console.log(\`Hello \${__func__} world\`);
                     }`;
 
-    const result = replaceIdentifiers(code, '__func__', 'unknown', true);
+    const result = applyReplace(code);
 
     expect(result).toBe(pr`function myFunction() {
                               console.log(\`Hello myFunction world\`);
@@ -23,7 +33,7 @@ describe('Template Literal Inline Expression Replacement', () => {
                       console.log(\`[PREFIX: \${name}] \${__func__} is running\`);
                     }`;
 
-    const result = replaceIdentifiers(code, '__func__', 'unknown', true);
+    const result = applyReplace(code);
 
     expect(result).toBe(pr`function testFunction() {
                               const name = "test";
@@ -42,7 +52,7 @@ describe('Template Literal Inline Expression Replacement', () => {
                       }
                     }`;
 
-    const result = replaceIdentifiers(code, '__func__', 'unknown', true);
+    const result = applyReplace(code);
 
     expect(result).toBe(pr`function openPopupWindow() {
                              try {
@@ -59,7 +69,7 @@ describe('Template Literal Inline Expression Replacement', () => {
                       console.log(\`\${__func__} and \${__func__name}\`);
                     }`;
 
-    const result = replaceIdentifiers(code, '__func__', 'unknown', true);
+    const result = applyReplace(code);
 
     expect(result).toContain('`myFunc and ${__func__name}`');
     expect(result).toContain('${__func__name}'); // Should not replace partial matches
@@ -71,7 +81,7 @@ describe('Template Literal Inline Expression Replacement', () => {
                       console.log(\`Start \${__func__} middle \${__func__} end\`);
                     }`;
 
-    const result = replaceIdentifiers(code, '__func__', 'unknown', true);
+    const result = applyReplace(code);
 
     expect(result).toContain('`Start multiTest middle multiTest end`');
     expect(result).not.toContain('${__func__}');
@@ -82,7 +92,13 @@ describe('Template Literal Inline Expression Replacement', () => {
                       console.log(\`Function: \${__function_name__}\`);
                     }`;
 
-    const result = replaceIdentifiers(code, '__function_name__', 'unknown', true);
+    const result = replaceIdentifiers({
+      code,
+      identifier: '__function_name__',
+      nameGetter: findFunctionNameAtPosition,
+      fallback: 'unknown',
+      stringReplace: true,
+    });
 
     expect(result).toContain('`Function: customFunc`');
     expect(result).not.toContain('${__function_name__}');
@@ -96,7 +112,7 @@ describe('Template Literal Inline Expression Replacement', () => {
                       console.log(\`Outer: \${__func__}\`);
                     }`;
 
-    const result = replaceIdentifiers(code, '__func__', 'unknown', true);
+    const result = applyReplace(code);
 
     expect(result).toContain('`Inner: innerFunction`');
     expect(result).toContain('`Outer: outerFunction`');
@@ -109,7 +125,7 @@ describe('Template Literal Inline Expression Replacement', () => {
                       }
                     }`;
 
-    const result = replaceIdentifiers(code, '__func__', 'unknown', true);
+    const result = applyReplace(code);
 
     expect(result).toContain('`Method: myMethod`');
     expect(result).not.toContain('${__func__}');
@@ -120,7 +136,7 @@ describe('Template Literal Inline Expression Replacement', () => {
                       console.log(\`Arrow: \${__func__}\`);
                     };`;
 
-    const result = replaceIdentifiers(code, '__func__', 'unknown', true);
+    const result = applyReplace(code);
 
     expect(result).toContain('`Arrow: unknown`');
     expect(result).not.toContain('${__func__}');
@@ -131,7 +147,7 @@ describe('Template Literal Inline Expression Replacement', () => {
                       console.log(\`Just __func__ in string\`);
                     }`;
 
-    const result = replaceIdentifiers(code, '__func__', 'unknown', true);
+    const result = applyReplace(code);
 
     expect(result).toContain('`Just testFunc in string`');
   });
@@ -142,7 +158,7 @@ describe('Template Literal Inline Expression Replacement', () => {
                       console.log(\`Complex: \${obj.name} \${__func__} \${Date.now()}\`);
                     }`;
 
-    const result = replaceIdentifiers(code, '__func__', 'unknown', true);
+    const result = applyReplace(code);
 
     expect(result).toContain('`Complex: ${obj.name} complexFunc ${Date.now()}`');
     expect(result).toContain('${obj.name}');
