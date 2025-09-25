@@ -62,3 +62,10 @@ console.error(`[__NAME__: ${__func__}]__func__ Failed to open popup window:`, er
 ---
 
 进一步优化，将模板字符串`xxx${identifier}xxx`里的`${identifier}`直接整个替换，而不是替换成`${"某个函数名"}`这样。
+
+---
+
+MethodDefinition的handler里缺少对一般表达式的支持，如果这里是'a'+somevariable，或者getnewfunctionname()函数调用，应该也要能够正确解析，要求如下：
+
+1. 为避免再次计算会产生副作用。把表达式的“字符串”来替换，而不是真的替换表达式
+2.

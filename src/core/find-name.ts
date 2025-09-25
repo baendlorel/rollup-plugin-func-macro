@@ -47,25 +47,8 @@ export function findFunctionNameAtPosition(ast: Node, position: number, fallback
   });
 
   const deduped = dedup(funcs);
-  // Find the innermost function that contains the position
-  // Skip arrow functions by only considering our collected contexts
-  // & Find the closest function name
-  let name = fallback;
-  let maxStart = -1;
-  for (let i = 0; i < deduped.length; i++) {
-    const func = deduped[i];
-    if (position < func.start || func.end < position) {
-      continue;
-    }
 
-    // Better to be greater than maxStart
-    if (func.start > maxStart) {
-      name = func.name;
-      maxStart = func.start;
-    }
-  }
-
-  return name;
+  return findClosestName(deduped, position, fallback);
 }
 
 /**
@@ -98,4 +81,25 @@ function dedup(funcs: FunctionContext[]): FunctionContext[] {
     }
   }
   return filtered;
+}
+
+function findClosestName(funcs: FunctionContext[], position: number, fallback: string): string {
+  // Find the innermost function that contains the position
+  // Skip arrow functions by only considering our collected contexts
+  // & Find the closest function name
+  let name = fallback;
+  let maxStart = -1;
+  for (let i = 0; i < funcs.length; i++) {
+    const func = funcs[i];
+    if (position < func.start || func.end < position) {
+      continue;
+    }
+
+    // Better to be greater than maxStart
+    if (func.start > maxStart) {
+      name = func.name;
+      maxStart = func.start;
+    }
+  }
+  return name;
 }

@@ -93,7 +93,7 @@ function walk(
           add({
             start: node.start,
             end: node.end,
-            replacement: `"${functionName}"`,
+            replacement: JSON.stringify(functionName),
             type: node.type,
           });
         }
