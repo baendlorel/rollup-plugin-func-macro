@@ -23,14 +23,16 @@ declare global {
     /**
      * The identifier to replace with function name
      * - defaults to '__func__'
+     * - set to `null` to disable function name replacement
      */
-    identifier: '__func__' | '__FUNCTION__' | (string & {});
+    identifier: '__func__' | '__FUNCTION__' | (string & {}) | null;
 
     /**
      * The identifier to replace with file name
      * - defaults to '__file__'
+     * - set to `null` to disable file name replacement
      */
-    fileIdentifier: '__file__' | '__filename__' | '__FILE__' | (string & {});
+    fileIdentifier: '__file__' | '__filename__' | '__FILE__' | (string & {}) | null;
 
     /**
      * Fallback value when function name cannot be found

@@ -29,35 +29,37 @@ export function funcMacro(options?: Partial<FuncMacroOptions>): Plugin {
       let changed = false;
       let result = code;
 
-      // Check if the code contains our function identifier
-      if (code.includes(opts.identifier)) {
-        const transformed = replaceIdentifiers({
-          code: result,
-          identifier: opts.identifier,
-          nameGetter: findFunctionNameAtPosition,
-          fallback: opts.fallback,
-          stringReplace: opts.stringReplace,
-        });
+      if (opts.identifier !== null) {
+        if (code.includes(opts.identifier)) {
+          const transformed = replaceIdentifiers({
+            code: result,
+            identifier: opts.identifier,
+            nameGetter: findFunctionNameAtPosition,
+            fallback: opts.fallback,
+            stringReplace: opts.stringReplace,
+          });
 
-        if (transformed !== null) {
-          result = transformed;
-          changed = true;
+          if (transformed !== null) {
+            result = transformed;
+            changed = true;
+          }
         }
       }
 
-      // Check if the code contains our file identifier
-      if (code.includes(opts.fileIdentifier)) {
-        const transformed = replaceIdentifiers({
-          code: result,
-          identifier: opts.fileIdentifier,
-          nameGetter: () => filename,
-          fallback: opts.fallback,
-          stringReplace: opts.stringReplace,
-        });
+      if (opts.fileIdentifier !== null) {
+        if (code.includes(opts.fileIdentifier)) {
+          const transformed = replaceIdentifiers({
+            code: result,
+            identifier: opts.fileIdentifier,
+            nameGetter: () => filename,
+            fallback: opts.fallback,
+            stringReplace: opts.stringReplace,
+          });
 
-        if (transformed !== null) {
-          result = transformed;
-          changed = true;
+          if (transformed !== null) {
+            result = transformed;
+            changed = true;
+          }
         }
       }
 

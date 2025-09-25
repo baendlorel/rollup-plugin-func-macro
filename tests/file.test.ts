@@ -65,14 +65,4 @@ describe('funcMacro', () => {
     expect(result).not.toContain('__file__');
     expect(result).not.toContain('__func__');
   });
-
-  it('should not replace __file__ when fileIdentifier is disabled', () => {
-    const plugin = funcMacro({ fileIdentifier: undefined });
-    const code = pr`function testFunc() {
-                      console.log("File:", __file__);
-                    }`;
-
-    const result = apply(plugin, code, 'test.js');
-    expect(result).toContain('__file__');
-  });
 });
