@@ -19,4 +19,6 @@ declare global {
     start: number;
     end: number;
   }
+
+  type NameFinder = (code: string, ast: Node, position: number, fallback: string) => string;
 }

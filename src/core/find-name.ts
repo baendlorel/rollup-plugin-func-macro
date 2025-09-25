@@ -10,6 +10,12 @@ import { simple } from 'acorn-walk';
 
 /**
  * Find function name at a specific position in the code
+ *
+ * @param code raw js code
+ * @param ast abstract syntax tree
+ * @param position position of the identifier, used for finding the closest function name and checking the invalid usage in method name
+ * @param fallback if cannot find a name, use this fallback
+ * @returns function name
  */
 export function findFunctionNameAtPosition(
   code: string,

@@ -1,3 +1,4 @@
+import { basename } from 'node:path';
 import { Plugin } from 'rollup';
 import { createFilter } from '@rollup/pluginutils';
 import { replaceIdentifiers } from './core/replace.js';
@@ -23,24 +24,39 @@ export function funcMacro(options?: Partial<FuncMacroOptions>): Plugin {
         return null;
       }
 
-      // Check if the code contains our identifier
-      if (!code.includes(opts.identifier)) {
-        return null;
+      const filename = basename(id);
+      let changed = false;
+      let result = code;
+
+      // Check if the code contains our function identifier
+      if (code.includes(opts.identifier)) {
+        const transformed = replaceIdentifiers(
+          result,
+          opts.identifier,
+          opts.fallback,
+          opts.stringReplace
+        );
+        if (transformed !== result) {
+          result = transformed;
+          changed = true;
+        }
       }
 
-      // Check if the code contains our identifier
-      if (!code.includes(opts.identifier)) {
-        return null;
+      // Check if the code contains our file identifier
+      if (code.includes(opts.fileIdentifier)) {
+        const transformed = replaceIdentifiers(
+          result,
+          opts.fileIdentifier,
+          filename,
+          opts.stringReplace
+        );
+        if (transformed !== result) {
+          result = transformed;
+          changed = true;
+        }
       }
 
-      const transformed = replaceIdentifiers(
-        code,
-        opts.identifier,
-        opts.fallback,
-        opts.stringReplace
-      );
-
-      return transformed === code ? null : { code: transformed, map: null };
+      return changed ? { code: result, map: null } : null;
     },
   };
 }

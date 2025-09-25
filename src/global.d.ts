@@ -3,13 +3,21 @@ export {};
 declare global {
   /**
    * ## Usage
-   * use `__func__` in your code to get the current function name.
+   * use `__func__` in your code, rollup will turn it into the function name.
+   * - by setting options.stringReplace to true, it can also replace `__func__` in string literals.
    *
    * __PKG_INFO__
    */
   const __func__: string;
 
-  // todo  add __file__ macro
+  /**
+   * ## Usage
+   * use `__file__` in your code, rollup will turn it into the current file name.
+   * - by setting options.stringReplace to true, it can also replace `__file__` in string literals.
+   *
+   * __PKG_INFO__
+   */
+  const __file__: string;
 
   interface FuncMacroOptions {
     /**
@@ -17,6 +25,12 @@ declare global {
      * - defaults to '__func__'
      */
     identifier: '__func__' | '__FUNCTION__' | (string & {});
+
+    /**
+     * The identifier to replace with file name
+     * - defaults to '__file__'
+     */
+    fileIdentifier: '__file__' | '__filename__' | '__FILE__' | (string & {});
 
     /**
      * Fallback value when function name cannot be found
