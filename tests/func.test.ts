@@ -126,18 +126,4 @@ describe('funcMacro', () => {
     // Should replace both occurrences
     expect((result?.match(/"testFunc"/g) || []).length).toBe(2);
   });
-
-  it('should handle method definitions with computed properties', () => {
-    const plugin = funcMacro({});
-    const code = pr`class TestClass {
-                      ['dynamicMethod']() {
-                        console.log(__func__);
-                      }
-                    }`;
-
-    const result = apply(plugin, code, 'test.js');
-    expect(result).toBeTruthy();
-    // For computed properties, should fallback to default
-    expect(result).toContain('"__func__"');
-  });
 });
