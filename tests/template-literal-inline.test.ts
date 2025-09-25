@@ -1,45 +1,46 @@
 import { describe, it, expect } from 'vitest';
 import { replaceIdentifiers } from '../src/core/replace.js';
+import { pr } from './utils.js';
 
 describe('Template Literal Inline Expression Replacement', () => {
   it('should replace ${__func__} directly with function name', () => {
-    const code = `function myFunction() {
-                    console.log(\`Hello \${__func__} world\`);
-                  }`;
+    const code = pr`function myFunction() {
+                      console.log(\`Hello \${__func__} world\`);
+                    }`;
 
     const result = replaceIdentifiers(code, '__func__', 'unknown', true);
 
-    expect(result).toBe(`function myFunction() {
-                           console.log(\`Hello myFunction world\`);
-                         }`);
+    expect(result).toBe(pr`function myFunction() {
+                              console.log(\`Hello myFunction world\`);
+                            }`);
     expect(result).not.toContain('${__func__}');
     expect(result).not.toContain('${"myFunction"}');
   });
 
   it('should handle complex template literals with mixed expressions', () => {
-    const code = `function testFunction() {
-                    const name = "test";
-                    console.log(\`[PREFIX: \${name}] \${__func__} is running\`);
-                  }`;
+    const code = pr`function testFunction() {
+                      const name = "test";
+                      console.log(\`[PREFIX: \${name}] \${__func__} is running\`);
+                    }`;
 
     const result = replaceIdentifiers(code, '__func__', 'unknown', true);
 
-    expect(result).toBe(`function testFunction() {
-                           const name = "test";
-                           console.log(\`[PREFIX: \${name}] testFunction is running\`);
-                         }`);
+    expect(result).toBe(pr`function testFunction() {
+                              const name = "test";
+                              console.log(\`[PREFIX: \${name}] testFunction is running\`);
+                            }`);
     expect(result).toContain('${name}'); // Should keep other expressions
     expect(result).not.toContain('${__func__}');
   });
 
   it('should handle the problematic case from bug report', () => {
-    const code = `function openPopupWindow() {
-                    try {
-                      // some code
-                    } catch (error) {
-                      console.error(\`[__NAME__: \${__func__}]__func__ Failed to open popup window:\`, error);
-                    }
-                  }`;
+    const code = pr`function openPopupWindow() {
+                      try {
+                        // some code
+                      } catch (error) {
+                        console.error(\`[__NAME__: \${__func__}]__func__ Failed to open popup window:\`, error);
+                      }
+                    }`;
 
     const result = replaceIdentifiers(code, '__func__', 'unknown', true);
 
@@ -48,9 +49,9 @@ describe('Template Literal Inline Expression Replacement', () => {
   });
 
   it('should only replace exact identifier matches in expressions', () => {
-    const code = `function myFunc() {
-                    console.log(\`\${__func__} and \${__func__name}\`);
-                  }`;
+    const code = pr`function myFunc() {
+                      console.log(\`\${__func__} and \${__func__name}\`);
+                    }`;
 
     const result = replaceIdentifiers(code, '__func__', 'unknown', true);
 
@@ -60,9 +61,9 @@ describe('Template Literal Inline Expression Replacement', () => {
   });
 
   it('should handle multiple ${__func__} in same template literal', () => {
-    const code = `function multiTest() {
-                    console.log(\`Start \${__func__} middle \${__func__} end\`);
-                  }`;
+    const code = pr`function multiTest() {
+                      console.log(\`Start \${__func__} middle \${__func__} end\`);
+                    }`;
 
     const result = replaceIdentifiers(code, '__func__', 'unknown', true);
 
@@ -71,9 +72,9 @@ describe('Template Literal Inline Expression Replacement', () => {
   });
 
   it('should work with custom identifier', () => {
-    const code = `function customFunc() {
-                    console.log(\`Function: \${__function_name__}\`);
-                  }`;
+    const code = pr`function customFunc() {
+                      console.log(\`Function: \${__function_name__}\`);
+                    }`;
 
     const result = replaceIdentifiers(code, '__function_name__', 'unknown', true);
 
@@ -82,12 +83,12 @@ describe('Template Literal Inline Expression Replacement', () => {
   });
 
   it('should handle nested functions correctly', () => {
-    const code = `function outerFunction() {
-                    function innerFunction() {
-                      console.log(\`Inner: \${__func__}\`);
-                    }
-                    console.log(\`Outer: \${__func__}\`);
-                  }`;
+    const code = pr`function outerFunction() {
+                      function innerFunction() {
+                        console.log(\`Inner: \${__func__}\`);
+                      }
+                      console.log(\`Outer: \${__func__}\`);
+                    }`;
 
     const result = replaceIdentifiers(code, '__func__', 'unknown', true);
 
@@ -96,11 +97,11 @@ describe('Template Literal Inline Expression Replacement', () => {
   });
 
   it('should work with class methods', () => {
-    const code = `class MyClass {
-                    myMethod() {
-                      console.log(\`Method: \${__func__}\`);
-                    }
-                  }`;
+    const code = pr`class MyClass {
+                      myMethod() {
+                        console.log(\`Method: \${__func__}\`);
+                      }
+                    }`;
 
     const result = replaceIdentifiers(code, '__func__', 'unknown', true);
 
@@ -109,9 +110,9 @@ describe('Template Literal Inline Expression Replacement', () => {
   });
 
   it('should use fallback when function name not found', () => {
-    const code = `const arrowFunc = () => {
-                    console.log(\`Arrow: \${__func__}\`);
-                  };`;
+    const code = pr`const arrowFunc = () => {
+                      console.log(\`Arrow: \${__func__}\`);
+                    };`;
 
     const result = replaceIdentifiers(code, '__func__', 'unknown', true);
 
@@ -120,9 +121,9 @@ describe('Template Literal Inline Expression Replacement', () => {
   });
 
   it('should handle template literals without expressions', () => {
-    const code = `function testFunc() {
-                    console.log(\`Just __func__ in string\`);
-                  }`;
+    const code = pr`function testFunc() {
+                      console.log(\`Just __func__ in string\`);
+                    }`;
 
     const result = replaceIdentifiers(code, '__func__', 'unknown', true);
 
@@ -130,10 +131,10 @@ describe('Template Literal Inline Expression Replacement', () => {
   });
 
   it('should handle complex expressions in template literals', () => {
-    const code = `function complexFunc() {
-                    const obj = { name: 'test' };
-                    console.log(\`Complex: \${obj.name} \${__func__} \${Date.now()}\`);
-                  }`;
+    const code = pr`function complexFunc() {
+                      const obj = { name: 'test' };
+                      console.log(\`Complex: \${obj.name} \${__func__} \${Date.now()}\`);
+                    }`;
 
     const result = replaceIdentifiers(code, '__func__', 'unknown', true);
 
