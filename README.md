@@ -9,9 +9,9 @@
 
 For more awesome packages, check out [my homepage💛](https://baendlorel.github.io/?repoType=npm)
 
-> Node version ≥ v14.18.0 ✅
+> Node version ≥ v14.18.0
 
-## Features
+## Features ✅
 
 - 🎯 **Dynamic Method Names**: Supports computed property methods like `['dynamicMethod'](){ ... }`
 - 🔀 **Variable Embedding**: Replace `__func__` and `__file__` anywhere in expressions and assignments
@@ -67,7 +67,7 @@ export default {
 };
 ```
 
-### Why ? 🤷‍♀️
+### Why Ignore Arrow Functions ? 🤷‍♀️
 
 Arrow functions are often anonymous or used as short callbacks. This plugin focuses on meaningful, debuggable function names that you'd actually want to see in logs! (｡◕‿◕｡)
 
@@ -179,7 +179,13 @@ function debugFunction(param) {
 
 ### Edge Cases
 
-Edge cases are also taken good care of!
+Edge cases are also taken good care of! like:
+
+- When using `__func__` inside the dynamic method name: replaced by `[Invalid]` and a warning message is logged to the console.
+
+- nested functions are supported
+
+- complex expressions inside dynamic method names e.g. `['get' + 'Data' + getName()](){ ... }` are handled too. It will replace the identifier with the string literal of the expression(Since evaluating them might be risky for side effects).
 
 ## Contributing 🤝
 

@@ -11,8 +11,9 @@ describe('String replacement functionality', () => {
 
     const result = apply(plugin, code, 'test.js');
     console.log(result);
-    expect(result).toContain('"Current function: testFunction"');
-    expect(result).not.toContain('__func__');
+    expect(result).toBe(pr`function testFunction() {
+                          console.log("Current function: testFunction");
+                        }`);
   });
 
   it('should NOT replace __func__ in string literals when stringReplace is false', () => {
