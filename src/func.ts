@@ -1,8 +1,9 @@
 import { basename } from 'node:path';
 import { Plugin } from 'rollup';
 import { createFilter } from '@rollup/pluginutils';
+import { normalize } from './core/normalize.js';
 import { replaceIdentifiers } from './core/replace.js';
-import { normalize } from './core/options.js';
+import { findFunctionNameAtPosition } from './core/find-name.js';
 
 /**
  * ## Usage
@@ -30,13 +31,15 @@ export function funcMacro(options?: Partial<FuncMacroOptions>): Plugin {
 
       // Check if the code contains our function identifier
       if (code.includes(opts.identifier)) {
-        const transformed = replaceIdentifiers(
-          result,
-          opts.identifier,
-          opts.fallback,
-          opts.stringReplace
-        );
-        if (transformed !== result) {
+        const transformed = replaceIdentifiers({
+          code: result,
+          identifier: opts.identifier,
+          nameGetter: findFunctionNameAtPosition,
+          fallback: opts.fallback,
+          stringReplace: opts.stringReplace,
+        });
+
+        if (transformed !== null) {
           result = transformed;
           changed = true;
         }
@@ -44,13 +47,15 @@ export function funcMacro(options?: Partial<FuncMacroOptions>): Plugin {
 
       // Check if the code contains our file identifier
       if (code.includes(opts.fileIdentifier)) {
-        const transformed = replaceIdentifiers(
-          result,
-          opts.fileIdentifier,
-          filename,
-          opts.stringReplace
-        );
-        if (transformed !== result) {
+        const transformed = replaceIdentifiers({
+          code: result,
+          identifier: opts.identifier,
+          nameGetter: () => filename,
+          fallback: opts.fallback,
+          stringReplace: opts.stringReplace,
+        });
+
+        if (transformed !== null) {
           result = transformed;
           changed = true;
         }

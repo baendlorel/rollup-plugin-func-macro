@@ -1,4 +1,11 @@
-import { parse, Identifier, Literal, Node, PrivateIdentifier, TemplateLiteral } from 'acorn';
+import {
+  parse,
+  Node as AcornNode,
+  Identifier,
+  Literal,
+  PrivateIdentifier,
+  TemplateLiteral,
+} from 'acorn';
 import { simple } from 'acorn-walk';
 
 interface Replacement {
@@ -11,21 +18,28 @@ interface Replacement {
 /**
  * Replace identifiers in the code with function names
  */
-export function replaceIdentifiers(
-  code: string,
-  opts: { identifier: string; nameFinder: NameFinder; fallback: string; stringReplace: boolean }
-): string {
-  const ast = silentParse(code);
+export function replaceIdentifiers(opts: {
+  code: string;
+  identifier: string;
+  nameGetter: NameGetter;
+  fallback: string;
+  stringReplace: boolean;
+}): string | null {
+  const ast = silentParse(opts.code);
   if (!ast) {
-    return code;
+    return opts.code;
   }
 
-  const replacements = walk(code, ast, identifier, nameFinder, fallback, stringReplace);
+  const replacements = walk(ast, opts);
+
+  if (replacements.length === 0) {
+    return null;
+  }
 
   // Apply replacements from end to start to maintain positions
   replacements.sort((a, b) => b.start - a.start);
 
-  let result = code;
+  let result = opts.code;
   for (let i = 0; i < replacements.length; i++) {
     const r = replacements[i];
     result = result.slice(0, r.start) + r.replacement + result.slice(r.end);
@@ -34,7 +48,7 @@ export function replaceIdentifiers(
   return result;
 }
 
-function silentParse(code: string): Node | null {
+function silentParse(code: string): AcornNode | null {
   try {
     return parse(code, {
       ecmaVersion: 'latest',
@@ -47,13 +61,17 @@ function silentParse(code: string): Node | null {
 }
 
 function walk(
-  code: string,
-  ast: Node,
-  identifier: string,
-  nameFinder: NameFinder,
-  fallback: string,
-  stringReplace: boolean
+  ast: AcornNode,
+  opts: {
+    code: string;
+    identifier: string;
+    nameGetter: NameGetter;
+    fallback: string;
+    stringReplace: boolean;
+  }
 ) {
+  const { code, identifier, nameGetter, fallback, stringReplace } = opts;
+
   const replacements: Replacement[] = [];
 
   /**
@@ -77,7 +95,7 @@ function walk(
   simple(ast, {
     Identifier(node: PrivateIdentifier | Identifier) {
       if (node.name === identifier) {
-        const functionName = nameFinder(code, ast, node.start, fallback);
+        const functionName = nameGetter(code, ast, node.start, fallback);
 
         // & Identifier might be in a template literal expression
         if (isInTemplateLiteralExpression(node)) {
@@ -101,7 +119,7 @@ function walk(
     // Handle string literals if stringReplace is enabled
     Literal(node: Literal) {
       if (stringReplace && typeof node.value === 'string' && node.value.includes(identifier)) {
-        const functionName = nameFinder(code, ast, node.start, fallback);
+        const functionName = nameGetter(code, ast, node.start, fallback);
         const newValue = node.value.replaceAll(identifier, functionName);
         add({
           start: node.start,
@@ -115,7 +133,7 @@ function walk(
     // Handle template literals if stringReplace is enabled
     TemplateLiteral(node: TemplateLiteral) {
       if (stringReplace && node.quasis && node.expressions) {
-        const functionName = nameFinder(code, ast, node.start, fallback);
+        const functionName = nameGetter(code, ast, node.start, fallback);
 
         // Handle expressions that are just the identifier
         for (const expr of node.expressions) {

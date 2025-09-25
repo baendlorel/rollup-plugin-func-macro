@@ -3,6 +3,7 @@ import {
   FunctionDeclaration,
   FunctionExpression,
   MethodDefinition,
+  Node as AcornNode,
 } from 'acorn';
 
 declare global {
@@ -20,5 +21,5 @@ declare global {
     end: number;
   }
 
-  type NameFinder = (code: string, ast: Node, position: number, fallback: string) => string;
+  type NameGetter = (code: string, ast: AcornNode, position: number, fallback: string) => string;
 }

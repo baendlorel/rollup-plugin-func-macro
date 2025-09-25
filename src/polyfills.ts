@@ -1,5 +1,5 @@
 String.prototype.replaceAll =
   String.prototype.replaceAll ||
-  function replaceAllPolyfill(str: string, search: string, replacement: string): string {
+  function (str: string, search: string, replacement: string): string {
     return typeof str.split(search).join(replacement);
   };
