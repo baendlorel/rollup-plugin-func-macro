@@ -14,10 +14,9 @@ describe('funcMacro', () => {
 
   it('should replace __func__ in function declaration', () => {
     const plugin = funcMacro();
-    const code = `
-function testFunction() {
-  console.log(__func__);
-}`;
+    const code = `function testFunction() {
+                    console.log(__func__);
+                  }`;
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
@@ -27,10 +26,9 @@ function testFunction() {
 
   it('should replace __func__ in function expression', () => {
     const plugin = funcMacro();
-    const code = `
-const myFunc = function namedFunc() {
-  return __func__;
-};`;
+    const code = `const myFunc = function namedFunc() {
+                    return __func__;
+                  };`;
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
@@ -40,12 +38,11 @@ const myFunc = function namedFunc() {
 
   it('should replace __func__ in class method', () => {
     const plugin = funcMacro();
-    const code = `
-class TestClass {
-  myMethod() {
-    console.log(__func__);
-  }
-}`;
+    const code = `class TestClass {
+                    myMethod() {
+                      console.log(__func__);
+                    }
+                  }`;
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
@@ -64,10 +61,9 @@ class TestClass {
 
   it('should handle custom identifier', () => {
     const plugin = funcMacro({ identifier: '__function_name__' });
-    const code = `
-function testFunc() {
-  console.log(__function_name__);
-}`;
+    const code = `function testFunc() {
+                    console.log(__function_name__);
+                  }`;
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
@@ -77,12 +73,11 @@ function testFunc() {
 
   it('should skip arrow functions', () => {
     const plugin = funcMacro();
-    const code = `
-function outerFunc() {
-  const arrow = () => {
-    console.log(__func__);
-  };
-}`;
+    const code = `function outerFunc() {
+                    const arrow = () => {
+                      console.log(__func__);
+                    };
+                  }`;
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
@@ -92,14 +87,13 @@ function outerFunc() {
 
   it('should handle nested functions correctly', () => {
     const plugin = funcMacro();
-    const code = `
-function outerFunc() {
-  console.log(__func__); // Should be "outerFunc"
-  
-  function innerFunc() {
-    console.log(__func__); // Should be "innerFunc"
-  }
-}`;
+    const code = `function outerFunc() {
+                    console.log(__func__); // Should be "outerFunc"
+                    
+                    function innerFunc() {
+                      console.log(__func__); // Should be "innerFunc"
+                    }
+                  }`;
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
@@ -109,10 +103,9 @@ function outerFunc() {
 
   it('should not transform files that do not match filter', () => {
     const plugin = funcMacro({ exclude: ['**/test.js'] });
-    const code = `
-function testFunc() {
-  console.log(__func__);
-}`;
+    const code = `function testFunc() {
+                    console.log(__func__);
+                  }`;
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeNull();
@@ -120,10 +113,9 @@ function testFunc() {
 
   it('should not transform when identifier is not present', () => {
     const plugin = funcMacro();
-    const code = `
-function testFunc() {
-  console.log("hello");
-}`;
+    const code = `function testFunc() {
+                    console.log("hello");
+                  }`;
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeNull();
@@ -131,11 +123,10 @@ function testFunc() {
 
   it('should handle multiple identifiers in the same function', () => {
     const plugin = funcMacro();
-    const code = `
-function testFunc() {
-  console.log("Function name:", __func__);
-  console.log("Called from:", __func__);
-}`;
+    const code = `function testFunc() {
+                    console.log("Function name:", __func__);
+                    console.log("Called from:", __func__);
+                  }`;
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
@@ -148,12 +139,11 @@ function testFunc() {
 
   it('should handle method definitions with computed properties', () => {
     const plugin = funcMacro({});
-    const code = `
-class TestClass {
-  ['dynamicMethod']() {
-    console.log(__func__);
-  }
-}`;
+    const code = `class TestClass {
+                    ['dynamicMethod']() {
+                      console.log(__func__);
+                    }
+                  }`;
 
     const result = callTransform(plugin, code, 'test.js');
     expect(result).toBeTruthy();
@@ -164,10 +154,9 @@ class TestClass {
   describe('String replacement functionality', () => {
     it('should replace __func__ in string literals when stringReplace is true', () => {
       const plugin = funcMacro({ stringReplace: true });
-      const code = `
-function testFunction() {
-  console.log("Current function: __func__");
-}`;
+      const code = `function testFunction() {
+                      console.log("Current function: __func__");
+                    }`;
 
       const result = callTransform(plugin, code, 'test.js');
       expect(result).toBeTruthy();
@@ -177,10 +166,9 @@ function testFunction() {
 
     it('should NOT replace __func__ in string literals when stringReplace is false', () => {
       const plugin = funcMacro({ stringReplace: false });
-      const code = `
-function testFunction() {
-  console.log("Current function: __func__");
-}`;
+      const code = `function testFunction() {
+                      console.log("Current function: __func__");
+                    }`;
 
       const result = callTransform(plugin, code, 'test.js');
       expect(result).toBeNull(); // No transformation should occur
@@ -188,10 +176,9 @@ function testFunction() {
 
     it('should replace __func__ in template literals when stringReplace is true', () => {
       const plugin = funcMacro({ stringReplace: true });
-      const code = `
-function testFunction() {
-  console.log(\`Current function: __func__\`);
-}`;
+      const code = `function testFunction() {
+                      console.log(\`Current function: __func__\`);
+                    }`;
 
       const result = callTransform(plugin, code, 'test.js');
       expect(result).toBeTruthy();
@@ -201,10 +188,9 @@ function testFunction() {
 
     it('should replace multiple __func__ occurrences in same string', () => {
       const plugin = funcMacro({ stringReplace: true });
-      const code = `
-function testFunction() {
-  console.log("__func__ called __func__");
-}`;
+      const code = `function testFunction() {
+                      console.log("__func__ called __func__");
+                    }`;
 
       const result = callTransform(plugin, code, 'test.js');
       expect(result).toBeTruthy();
@@ -213,11 +199,10 @@ function testFunction() {
 
     it('should handle template literals with expressions', () => {
       const plugin = funcMacro({ stringReplace: true });
-      const code = `
-function testFunction() {
-  const x = 42;
-  console.log(\`Function __func__ with value \${x}\`);
-}`;
+      const code = `function testFunction() {
+                      const x = 42;
+                      console.log(\`Function __func__ with value \${x}\`);
+                    }`;
 
       const result = callTransform(plugin, code, 'test.js');
       expect(result).toBeTruthy();
@@ -226,11 +211,10 @@ function testFunction() {
 
     it('should replace both identifier and string occurrences', () => {
       const plugin = funcMacro({ stringReplace: true });
-      const code = `
-function testFunction() {
-  const name = __func__;
-  console.log("Function name is __func__");
-}`;
+      const code = `function testFunction() {
+                      const name = __func__;
+                      console.log("Function name is __func__");
+                    }`;
 
       const result = callTransform(plugin, code, 'test.js');
       expect(result).toBeTruthy();
@@ -244,10 +228,9 @@ function testFunction() {
         identifier: '__FUNCTION_NAME__',
         stringReplace: true,
       });
-      const code = `
-function testFunction() {
-  console.log("Current: __FUNCTION_NAME__");
-}`;
+      const code = `function testFunction() {
+                      console.log("Current: __FUNCTION_NAME__");
+                    }`;
 
       const result = callTransform(plugin, code, 'test.js');
       expect(result).toBeTruthy();

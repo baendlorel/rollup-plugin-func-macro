@@ -128,13 +128,14 @@ export function replaceIdentifiers(
   // Apply replacements from end to start to maintain positions
   replacements.sort((a, b) => b.start - a.start);
   console.log('Replacements:', replacements);
-  console.log('digit:', code.substring(replacements[0].start - 5, replacements[0].end + 5));
+  if (replacements.length) {
+    console.log('digit:', code.substring(replacements[0].start - 5, replacements[0].end + 5));
+  }
 
-  // fixme 这可能会错位
   let result = code;
-  for (const replacement of replacements) {
-    result =
-      result.slice(0, replacement.start) + replacement.replacement + result.slice(replacement.end);
+  for (let i = 0; i < replacements.length; i++) {
+    const r = replacements[i];
+    result = result.slice(0, r.start) + r.replacement + result.slice(r.end);
   }
 
   return result;
