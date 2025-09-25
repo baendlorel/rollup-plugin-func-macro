@@ -19,6 +19,8 @@ export function findFunctionNameAtPosition(ast: Node, position: number, fallback
       end: node.end,
     });
 
+  // console.dir(ast, { depth: 12 });
+
   // Collect all function contexts
   simple(ast, {
     FunctionDeclaration(node: FunctionDeclaration | AnonymousFunctionDeclaration) {
@@ -49,12 +51,14 @@ export function findFunctionNameAtPosition(ast: Node, position: number, fallback
   // Skip arrow functions by only considering our collected contexts
   // & Find the closest function name
   let name = fallback;
-  let maxStart = 0;
+  let maxStart = -1;
   for (let i = 0; i < deduped.length; i++) {
     const func = deduped[i];
     if (position < func.start || func.end < position) {
       continue;
     }
+
+    // Better to be greater than maxStart
     if (func.start > maxStart) {
       name = func.name;
       maxStart = func.start;

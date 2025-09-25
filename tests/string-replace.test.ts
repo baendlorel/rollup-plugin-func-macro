@@ -10,6 +10,7 @@ describe('String replacement functionality', () => {
                     }`;
 
     const result = apply(plugin, code, 'test.js');
+    console.log(result);
     expect(result).toContain('"Current function: testFunction"');
     expect(result).not.toContain('__func__');
   });
