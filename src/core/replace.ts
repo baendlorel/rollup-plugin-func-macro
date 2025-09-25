@@ -1,7 +1,7 @@
 import {
   parse,
   Node as AcornNode,
-  Identifier,
+  Identifier as AcornIdentifier,
   Literal,
   PrivateIdentifier,
   TemplateLiteral,
@@ -87,17 +87,17 @@ function walk(
     replacements.push({ start, end, replacement, type });
   };
 
-  const isInTemplateLiteralExpression = (node: PrivateIdentifier | Identifier) => {
+  const isInTemplateLiteralExpression = (node: PrivateIdentifier | AcornIdentifier) => {
     return code[node.start - 2] === '$' && code[node.start - 1] === '{' && code[node.end] === '}';
   };
 
   // Find all identifier nodes that match our target
   simple(ast, {
-    Identifier(node: PrivateIdentifier | Identifier) {
+    Identifier(node: PrivateIdentifier | AcornIdentifier) {
       if (node.name === identifier) {
         const functionName = nameGetter(code, ast, node.start, fallback);
 
-        // & Identifier might be in a template literal expression
+        // & AcornIdentifier might be in a template literal expression
         if (isInTemplateLiteralExpression(node)) {
           add({
             start: node.start - 2, // Account for ${

@@ -7,6 +7,8 @@
 
 🎉 **Stable Release v1.0** - Production ready with comprehensive bug fixes and enhanced features!
 
+> Node version ≥ v14.18.0 ✅
+
 **Core Capabilities:**
 
 - 🎯 **Dynamic Method Names**: Supports computed property methods like `['dynamicMethod'](){ ... }`
