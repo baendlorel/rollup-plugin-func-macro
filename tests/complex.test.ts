@@ -85,6 +85,8 @@ describe('funcMacro', () => {
 
     const result = apply(plugin, code, 'test.js');
     console.log(result);
-    expect(result).toBe(pr``);
+    expect(result).toBe(pr`function tt(){
+                             console.log("tt"+"tt"+\`\${"tt"+'2323'}\` + \`tt\` + "tt");
+                           }`);
   });
 });

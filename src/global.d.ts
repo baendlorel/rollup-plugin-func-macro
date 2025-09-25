@@ -9,6 +9,8 @@ declare global {
    */
   const __func__: string;
 
+  // todo  add __file__ macro
+
   interface FuncMacroOptions {
     /**
      * The identifier to replace with function name
