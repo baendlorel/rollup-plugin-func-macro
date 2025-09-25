@@ -47,23 +47,39 @@ describe('funcMacro', () => {
                           }`);
   });
 
-  it('should I dont know either', () => {
+  it('should be literal', () => {
     const plugin = funcMacro({ fallback: '???' });
     const code = pr`class TestClass {
-                      ['dynamicMethod'+ __func__]() {
+                      ['dynamicMethod'+ getName() + "asdf"]() {
+                        const name = __func__;
                       }
                     };`;
 
     const result = apply(plugin, code, 'test.js');
     expect(result).toBe(pr`class TestClass {
-                            ['dynamicMethod'+ "???"]() {
+                            ['dynamicMethod'+ getName() + "asdf"]() {
+                              const name = "'dynamicMethod'+ getName() + \\"asdf\\"";
                             }
                           };`);
   });
 
+  it('should be [Invalid] when using __func__ in method name', () => {
+    const plugin = funcMacro({ fallback: '???' });
+    const code = pr`class TestClass {
+                      ['dynamicMethod'+ __func__]() {
+                      }
+                    }`;
+
+    const result = apply(plugin, code, 'test.js');
+    expect(result).toBe(pr`class TestClass {
+                            ['dynamicMethod'+ "[Invalid]"]() {
+                            }
+                          }`);
+  });
+
   it('should I dont know either', () => {
     const plugin = funcMacro({});
-    const code = pr`function tt (){
+    const code = pr`function tt(){
                       console.log('__func__'+__func__+\`\${__func__+'2323'}\` + \`\${__func__}\` + "__func__");
                     }`;
 

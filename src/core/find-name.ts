@@ -1,3 +1,4 @@
+import { between, Consts } from '@/common.js';
 import {
   Node,
   AnonymousFunctionDeclaration,
@@ -10,7 +11,12 @@ import { simple } from 'acorn-walk';
 /**
  * Find function name at a specific position in the code
  */
-export function findFunctionNameAtPosition(ast: Node, position: number, fallback: string): string {
+export function findFunctionNameAtPosition(
+  code: string,
+  ast: Node,
+  position: number,
+  fallback: string
+): string {
   const funcs: FunctionContext[] = [];
   const add = (node: FunctionNode, name: string) =>
     funcs.push({
@@ -24,16 +30,16 @@ export function findFunctionNameAtPosition(ast: Node, position: number, fallback
   // Collect all function contexts
   simple(ast, {
     FunctionDeclaration(node: FunctionDeclaration | AnonymousFunctionDeclaration) {
-      add(node, node.id?.name ?? '[anonymous function]');
+      add(node, node.id?.name ?? Consts.AnonymousFunction);
     },
 
     FunctionExpression(node: FunctionExpression) {
-      add(node, node.id?.name ?? '[anonymous function expression]');
+      add(node, node.id?.name ?? Consts.AnonymousFunctionExpression);
     },
 
     MethodDefinition(node: MethodDefinition) {
       const key = node.key;
-      let name: string = '[anonymous method]';
+      let name: string = Consts.AnonymousMethod;
 
       if (key.type === 'Identifier') {
         // Regular method: methodName() {}
@@ -41,12 +47,18 @@ export function findFunctionNameAtPosition(ast: Node, position: number, fallback
       } else if (key.type === 'Literal') {
         // Dynamic method: ['methodName']() {} or ["methodName"]() {}
         name = String(key.value);
+      } else {
+        // Other dynamic method: ['dynamicMethod'+ getName() + "asdf"]() {}
+        name = code.substring(key.start, key.end);
       }
       add(node, name);
     },
   });
 
-  const deduped = dedup(funcs);
+  const deduped = dedup(funcs, position);
+  if (deduped === null) {
+    return Consts.InvalidUsingMacroInMethodName;
+  }
 
   return findClosestName(deduped, position, fallback);
 }
@@ -66,18 +78,33 @@ export function findFunctionNameAtPosition(ast: Node, position: number, fallback
  * };
  * ```
  */
-function dedup(funcs: FunctionContext[]): FunctionContext[] {
+function dedup(funcs: FunctionContext[], position: number): FunctionContext[] | null {
   const filtered: FunctionContext[] = [];
   for (let i = 0; i < funcs.length; i++) {
     const func = funcs[i];
 
     const index = filtered.findIndex((f) => f.end === func.end);
-    if (filtered[index]) {
-      if (filtered[index].start >= func.start) {
-        filtered[index] = func;
-      }
-    } else {
+    if (index === -1) {
       filtered.push(func);
+      continue;
+    }
+
+    /**
+     * & If `position` appears between this 2 nodes's `start`, this is the case that using `__func__` in the method name
+     * ! This is the invalid using
+     * ```ts
+     * class TestClass {
+     *   ['dynamicMethod'+ __func__]() {
+     *   }
+     * }
+     * ```
+     */
+    if (between(position, func.start, filtered[index].start)) {
+      return null;
+    }
+
+    if (filtered[index].start >= func.start) {
+      filtered[index] = func;
     }
   }
   return filtered;

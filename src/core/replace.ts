@@ -79,7 +79,7 @@ function walk(
   simple(ast, {
     Identifier(node: PrivateIdentifier | Identifier) {
       if (node.name === identifier) {
-        const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
+        const functionName = findFunctionNameAtPosition(code, ast, node.start, fallback);
 
         // & Identifier might be in a template literal expression
         if (isInTemplateLiteralExpression(node)) {
@@ -103,7 +103,7 @@ function walk(
     // Handle string literals if stringReplace is enabled
     Literal(node: Literal) {
       if (stringReplace && typeof node.value === 'string' && node.value.includes(identifier)) {
-        const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
+        const functionName = findFunctionNameAtPosition(code, ast, node.start, fallback);
         const newValue = node.value.replaceAll(identifier, functionName);
         add({
           start: node.start,
@@ -117,7 +117,7 @@ function walk(
     // Handle template literals if stringReplace is enabled
     TemplateLiteral(node: TemplateLiteral) {
       if (stringReplace && node.quasis && node.expressions) {
-        const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
+        const functionName = findFunctionNameAtPosition(code, ast, node.start, fallback);
 
         // Handle expressions that are just the identifier
         for (const expr of node.expressions) {
