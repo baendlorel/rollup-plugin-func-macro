@@ -53,8 +53,23 @@ export function replaceIdentifiers(
 
     // Handle template literals if stringReplace is enabled
     TemplateLiteral(node: TemplateLiteral) {
-      if (stringReplace && node.quasis) {
+      if (stringReplace && node.quasis && node.expressions) {
         const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
+
+        // Handle expressions that are just the identifier
+        for (const expr of node.expressions) {
+          if (expr.type === 'Identifier' && expr.name === identifier) {
+            // Replace ${identifier} with the function name directly
+            // We need to replace the entire expression including ${}
+            const exprStart = expr.start - 2; // Account for ${
+            const exprEnd = expr.end + 1; // Account for }
+            replacements.push({
+              start: exprStart,
+              end: exprEnd,
+              replacement: functionName,
+            });
+          }
+        }
 
         // Handle each quasi (string part) separately
         for (const quasi of node.quasis) {

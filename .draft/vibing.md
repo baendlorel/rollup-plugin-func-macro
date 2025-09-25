@@ -58,3 +58,7 @@ console.error(`[__NAME__: ${__func__}]__func__ Failed to open popup window:`, er
 
 导致的，出现的两次**func**导致acorn解析失败，如果只有第一个`${__func__}`或者只有后面的`__func__`，就不会报错。
 但是这个怎么会解析错误？你看看到底是acorn的原因，还是我的原因
+
+---
+
+进一步优化，将模板字符串`xxx${identifier}xxx`里的`${identifier}`直接整个替换，而不是替换成`${"某个函数名"}`这样。
