@@ -1,36 +1,26 @@
-# rollup-plugin-func-macro 🚀
+# rollup-plugin-func-macro
 
-> Using `__func__` like C++ to get current function name (ignores arrow function context) ✨
+> Using `__func__` and `__file__` like C++ to get current function name and file name (ignores arrow function context) ✨
 
 [![npm version](https://img.shields.io/npm/v/rollup-plugin-func-macro.svg)](https://www.npmjs.com/package/rollup-plugin-func-macro) [![npm downloads](http://img.shields.io/npm/dm/rollup-plugin-func-macro.svg)](https://npmcharts.com/compare/rollup-plugin-func-macro,token-types?start=1200&interval=30)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/59dd6795e61949fb97066ca52e6097ef)](https://www.codacy.com/app/Borewit/rollup-plugin-func-macro?utm_source=github.com&utm_medium=referral&utm_content=Borewit/rollup-plugin-func-macro&utm_campaign=Badge_Grade)
 
-🎉 **Stable Release v1.0** - Production ready with comprehensive bug fixes and enhanced features!
-
-> Node version ≥ v14.18.0 ✅
-
-**Core Capabilities:**
-
-- 🎯 **Dynamic Method Names**: Supports computed property methods like `['dynamicMethod'](){ ... }`
-- 🔀 **Variable Embedding**: Replace `__func__` anywhere in expressions and assignments
-- 📝 **String Replacement**: Automatically replaces `__func__` inside string literals and template strings
+🎉 **Stable Release v1** - Production ready with comprehensive bug fixes and enhanced features!
 
 For more awesome packages, check out [my homepage💛](https://baendlorel.github.io/?repoType=npm)
 
-## What is this? 🤔
+> Node version ≥ v14.18.0 ✅
 
-This Rollup plugin transforms `__func__` identifiers into the actual function name strings, similar to C++'s `__func__`(theoretically `__func__` is not a C++ macro)! Perfect for debugging, logging, and error tracking. (´∀｀)
+## Features
 
-## Features ⭐
-
-- 🎯 **Smart Context Detection**: Finds the correct function name even in nested contexts
-- 🏹 **Arrow Function Aware**: Skips arrow functions and finds the nearest named function
-- 🌟 **Dynamic Method Support**: Handles computed property methods like `class { ['methodName']() {} }`
-- 🔗 **Universal Variable Embedding**: Replace `__func__` in any expression context - assignments, concatenations, template expressions
-- 📝 **Advanced String Processing**: Automatic replacement in string literals, template literals, and template expressions
-- 🎨 **Customizable**: Configure your own identifier, file patterns, and fallback values
-- 🔧 **TypeScript Ready**: Full TypeScript support out of the box
-- ⚡ **Fast**: Uses Acorn for efficient AST parsing
+- 🎯 **Dynamic Method Names**: Supports computed property methods like `['dynamicMethod'](){ ... }`
+- 🔀 **Variable Embedding**: Replace `__func__` and `__file__` anywhere in expressions and assignments
+  - `__func__` provides current function name
+  - `__file__` provides current file name
+- 📝 **String Replacement**: Automatically replaces identifiers inside string literals and template strings
+- 🔧 **Selective Disabling**: Set identifiers to `null` to disable replacements
+- 🎯 **TypeScript Support**: After installation, you can add `import 'rollup-plugin-func-macro'` in your global.d.ts file. Then `__func__` and `__file__` will be available in your projects with full type support! ✨
+- 🛡️ **Robust Error Handling**: Gracefully handles edge cases and syntax errors
 
 ## Installation 📦
 
@@ -38,42 +28,44 @@ This Rollup plugin transforms `__func__` identifiers into the actual function na
 pnpm add -D rollup-plugin-func-macro
 ```
 
-> 🎯 **TypeScript Support**: After installation, you can add `import 'rollup-plugin-func-macro'` in your global.d.ts file. Then `__func__` will be available in your projects with full type support! ✨
-
 ## Usage 🛠️
 
 ### Basic Setup
+
+Options are introduced in comments blow:
 
 ```js
 // rollup.config.js
 import funcMacro from 'rollup-plugin-func-macro';
 
 export default {
-  input: 'src/index.js',
-  output: {
-    file: 'dist/bundle.js',
-    format: 'es',
-  },
   plugins: [
     funcMacro({
-      identifier: '__func__', // Custom identifier (default: '__func__')
-      include: ['**/*.js', '**/*.ts'], // Files to transform (default)
-      exclude: ['node_modules/**'], // Files to exclude (default)
-      fallback: identifier, // Fallback when no function found (default is equal to identifier)
-      stringReplace: true, // Whether to replace inside string literals (default: true)
+      // Function name identifier
+      // default: '__func__', set to null to disable
+      identifier: '__func__',
+
+      // File name identifier
+      // default: '__file__', set to null to disable
+      fileIdentifier: '__file__',
+
+      // Files to transform (default)
+      include: ['**/*.js', '**/*.ts'],
+
+      // Files to exclude (default)
+      exclude: ['node_modules/**'],
+
+      // Fallback when no function found
+      // default is equal to identifier
+      fallback: identifier,
+
+      // Whether to replace inside string literals
+      // default: true
+      stringReplace: true,
     }),
   ],
 };
 ```
-
-> `node_modules` is always excluded.
-
-## Supported Function Types 📋
-
-- ✅ **Function Declarations**: `function myFunc() {}`
-- ✅ **Function Expressions**: `const func = function named() {}`
-- ✅ **Class Methods**: `class { myMethod() {} }`
-- ❌ **Arrow Functions**: `() => {}` (intentionally skipped)
 
 ### Why ? 🤷‍♀️
 
@@ -116,7 +108,7 @@ class Logger {
 ```js
 class Logger {
   logMessage() {
-    console.log(`["logMessage"] Hello world!`);
+    console.log(`[logMessage] Hello world!`);
   }
 }
 ```
@@ -185,31 +177,9 @@ function debugFunction(param) {
 }
 ```
 
-### Advanced String & Template Processing ✨
+### Edge Cases
 
-**Enhanced!** `__func__` replacement now works in all string contexts - string literals, template literals, and template expressions! 🎉
-
-**Input:**
-
-```js
-function debugFunction() {
-  console.log('Debug: __func__ started');
-  console.log(`Function __func__ with ${param}`);
-  const name = __func__; // Still works as identifier
-}
-```
-
-**Output:**
-
-```js
-function debugFunction() {
-  console.log('Debug: debugFunction started');
-  console.log(`Function debugFunction with ${param}`);
-  const name = 'debugFunction';
-}
-```
-
-You can disable this behavior by setting `stringReplace: false` in options. (◕‿◕)
+Edge cases are also taken good care of!
 
 ## Contributing 🤝
 
