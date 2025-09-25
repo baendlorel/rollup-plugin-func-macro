@@ -5,6 +5,14 @@
 [![npm version](https://img.shields.io/npm/v/rollup-plugin-func-macro.svg)](https://www.npmjs.com/package/rollup-plugin-func-macro) [![npm downloads](http://img.shields.io/npm/dm/rollup-plugin-func-macro.svg)](https://npmcharts.com/compare/rollup-plugin-func-macro,token-types?start=1200&interval=30)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/59dd6795e61949fb97066ca52e6097ef)](https://www.codacy.com/app/Borewit/rollup-plugin-func-macro?utm_source=github.com&utm_medium=referral&utm_content=Borewit/rollup-plugin-func-macro&utm_campaign=Badge_Grade)
 
+🎉 **Stable Release v1.0** - Production ready with comprehensive bug fixes and enhanced features!
+
+**Core Capabilities:**
+
+- 🎯 **Dynamic Method Names**: Supports computed property methods like `['dynamicMethod'](){ ... }`
+- 🔀 **Variable Embedding**: Replace `__func__` anywhere in expressions and assignments
+- 📝 **String Replacement**: Automatically replaces `__func__` inside string literals and template strings
+
 For more awesome packages, check out [my homepage💛](https://baendlorel.github.io/?repoType=npm)
 
 ## What is this? 🤔
@@ -15,6 +23,9 @@ This Rollup plugin transforms `__func__` identifiers into the actual function na
 
 - 🎯 **Smart Context Detection**: Finds the correct function name even in nested contexts
 - 🏹 **Arrow Function Aware**: Skips arrow functions and finds the nearest named function
+- 🌟 **Dynamic Method Support**: Handles computed property methods like `class { ['methodName']() {} }`
+- 🔗 **Universal Variable Embedding**: Replace `__func__` in any expression context - assignments, concatenations, template expressions
+- 📝 **Advanced String Processing**: Automatic replacement in string literals, template literals, and template expressions
 - 🎨 **Customizable**: Configure your own identifier, file patterns, and fallback values
 - 🔧 **TypeScript Ready**: Full TypeScript support out of the box
 - ⚡ **Fast**: Uses Acorn for efficient AST parsing
@@ -22,8 +33,6 @@ This Rollup plugin transforms `__func__` identifiers into the actual function na
 ## Installation 📦
 
 ```bash
-npm install --save-dev rollup-plugin-func-macro
-# or
 pnpm add -D rollup-plugin-func-macro
 ```
 
@@ -54,6 +63,8 @@ export default {
   ],
 };
 ```
+
+> `node_modules` is always excluded.
 
 ## Supported Function Types 📋
 
@@ -108,9 +119,73 @@ class Logger {
 }
 ```
 
-### String Replacement ✨
+### Dynamic Method Names 🆕
 
-**NEW!** By default, `__func__` inside string literals and template literals will also be replaced! 🎉
+**Input:**
+
+```js
+class ApiHandler {
+  ['handleUserRequest']() {
+    console.log('Executing:', __func__);
+    return `Processing in ${__func__}`;
+  }
+
+  ['process' + 'Data']() {
+    const methodName = __func__;
+    console.log(`Method: ${methodName}`);
+  }
+}
+```
+
+**Output:**
+
+```js
+class ApiHandler {
+  ['handleUserRequest']() {
+    console.log('Executing:', 'handleUserRequest');
+    return `Processing in handleUserRequest`;
+  }
+
+  ['process' + 'Data']() {
+    const methodName = 'processData';
+    console.log(`Method: processData`);
+  }
+}
+```
+
+### Variable Embedding in Expressions 🆕
+
+**Input:**
+
+```js
+function debugFunction(param) {
+  const name = __func__ + '_v2';
+  const message = 'Function ' + __func__ + ' called';
+  const result = { method: __func__, param };
+
+  if (__func__ === 'debugFunction') {
+    console.log(`Confirmed: ${__func__}`);
+  }
+}
+```
+
+**Output:**
+
+```js
+function debugFunction(param) {
+  const name = 'debugFunction' + '_v2';
+  const message = 'Function debugFunction called';
+  const result = { method: 'debugFunction', param };
+
+  if ('debugFunction' === 'debugFunction') {
+    console.log(`Confirmed: debugFunction`);
+  }
+}
+```
+
+### Advanced String & Template Processing ✨
+
+**Enhanced!** `__func__` replacement now works in all string contexts - string literals, template literals, and template expressions! 🎉
 
 **Input:**
 
