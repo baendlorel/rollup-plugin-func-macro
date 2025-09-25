@@ -1,52 +1,97 @@
-import { Node } from 'acorn';
+import {
+  Node,
+  AnonymousFunctionDeclaration,
+  FunctionDeclaration,
+  MethodDefinition,
+  FunctionExpression,
+} from 'acorn';
 import { simple } from 'acorn-walk';
+
 /**
  * Find function name at a specific position in the code
  */
 export function findFunctionNameAtPosition(ast: Node, position: number, fallback: string): string {
-  const functionContexts: FunctionContext[] = [];
+  const funcs: FunctionContext[] = [];
+  const add = (node: FunctionNode, name: string) =>
+    funcs.push({
+      name,
+      start: node.start,
+      end: node.end,
+    });
 
   // Collect all function contexts
   simple(ast, {
-    FunctionDeclaration(node: any) {
-      if (node.id?.name) {
-        functionContexts.push({
-          name: node.id.name,
-          type: 'FunctionDeclaration',
-          start: node.start,
-          end: node.end,
-        });
-      }
+    FunctionDeclaration(node: FunctionDeclaration | AnonymousFunctionDeclaration) {
+      add(node, node.id?.name ?? '[anonymous function]');
     },
 
-    FunctionExpression(node: any) {
-      if (node.id?.name) {
-        functionContexts.push({
-          name: node.id.name,
-          type: 'FunctionExpression',
-          start: node.start,
-          end: node.end,
-        });
-      }
+    FunctionExpression(node: FunctionExpression) {
+      add(node, node.id?.name ?? '[anonymous function expression]');
     },
 
-    MethodDefinition(node: any) {
-      if (node.key?.type === 'Identifier' && node.key.name) {
-        functionContexts.push({
-          name: node.key.name,
-          type: 'MethodDefinition',
-          start: node.start,
-          end: node.end,
-        });
+    MethodDefinition(node: MethodDefinition) {
+      const key = node.key;
+      let name: string = '[anonymous method]';
+
+      if (key.type === 'Identifier') {
+        // Regular method: methodName() {}
+        name = key.name;
+      } else if (key.type === 'Literal') {
+        // Dynamic method: ['methodName']() {} or ["methodName"]() {}
+        name = String(key.value);
       }
+      add(node, name);
     },
   });
 
+  const deduped = dedup(funcs);
   // Find the innermost function that contains the position
   // Skip arrow functions by only considering our collected contexts
-  const containingFunctions = functionContexts
-    .filter((func) => position >= func.start && position <= func.end)
-    .sort((a, b) => b.start - a.start); // Sort by start position descending (innermost first)
+  // & Find the closest function name
+  let name = fallback;
+  let maxStart = 0;
+  for (let i = 0; i < deduped.length; i++) {
+    const func = deduped[i];
+    if (position < func.start || func.end < position) {
+      continue;
+    }
+    if (func.start > maxStart) {
+      name = func.name;
+      maxStart = func.start;
+    }
+  }
 
-  return containingFunctions.length > 0 ? containingFunctions[0].name : fallback;
+  return name;
+}
+
+/**
+ * # Weird Case
+ * From the script below, acorn will detect **2** methods with the same `node.end`.
+ * One is anonymous, one is named.
+ *
+ * So we only keep the named one.
+ *
+ * ```ts
+ * class TestClass {
+ *   ['dynamicMethod']() {
+ *     console.log("dynamicMethod");
+ *   }
+ * };
+ * ```
+ */
+function dedup(funcs: FunctionContext[]): FunctionContext[] {
+  const filtered: FunctionContext[] = [];
+  for (let i = 0; i < funcs.length; i++) {
+    const func = funcs[i];
+
+    const index = filtered.findIndex((f) => f.end === func.end);
+    if (filtered[index]) {
+      if (filtered[index].start >= func.start) {
+        filtered[index] = func;
+      }
+    } else {
+      filtered.push(func);
+    }
+  }
+  return filtered;
 }

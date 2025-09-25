@@ -17,7 +17,7 @@ describe('funcMacro', () => {
                             ['dynamicMethod']() {
                               console.log("dynamicMethod");
                             }
-                          };`);
+                           };`);
   });
 
   it('should handle complex situations', () => {

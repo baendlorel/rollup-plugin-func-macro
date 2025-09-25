@@ -1,8 +1,22 @@
-declare const __IS_DEV__: boolean;
+import {
+  AnonymousFunctionDeclaration,
+  FunctionDeclaration,
+  FunctionExpression,
+  MethodDefinition,
+} from 'acorn';
 
-interface FunctionContext {
-  name: string;
-  type: 'FunctionDeclaration' | 'FunctionExpression' | 'MethodDefinition';
-  start: number;
-  end: number;
+declare global {
+  type FunctionNode =
+    | FunctionDeclaration
+    | AnonymousFunctionDeclaration
+    | FunctionExpression
+    | MethodDefinition;
+
+  const __IS_DEV__: boolean;
+
+  interface FunctionContext {
+    name: string;
+    start: number;
+    end: number;
+  }
 }

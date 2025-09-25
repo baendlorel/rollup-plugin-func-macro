@@ -27,10 +27,6 @@ export function replaceIdentifiers(
 
   // Apply replacements from end to start to maintain positions
   replacements.sort((a, b) => b.start - a.start);
-  console.log('Replacements:', replacements);
-  if (replacements.length) {
-    console.log('digit:', code.substring(replacements[0].start - 5, replacements[0].end + 5));
-  }
 
   let result = code;
   for (let i = 0; i < replacements.length; i++) {
