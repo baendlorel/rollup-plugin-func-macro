@@ -1,9 +1,9 @@
-export const transform = (plugin: any, code: string, id: string) => {
+export const apply = (plugin: any, code: string, id: string): null | string => {
   const transformHook = plugin.transform;
   if (typeof transformHook === 'function') {
-    return transformHook.call({}, code, id);
+    return transformHook.call({}, code, id)?.code || null;
   } else if (transformHook && typeof transformHook.handler === 'function') {
-    return transformHook.handler.call({}, code, id);
+    return transformHook.handler.call({}, code, id)?.code || null;
   }
   return null;
 };

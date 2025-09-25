@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest';
 import { funcMacro } from '../src/func.js';
-import { transform, pr } from './utils.js';
+import { apply, pr } from './utils.js';
 
 describe('funcMacro', () => {
   it('should replace __func__ in function declaration', () => {
@@ -9,10 +9,10 @@ describe('funcMacro', () => {
                     console.log(__func__);
                   }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect(result.code).toContain('"testFunction"');
-    expect(result.code).not.toContain('__func__');
+    expect(result).toContain('"testFunction"');
+    expect(result).not.toContain('__func__');
   });
 
   it('should replace __func__ in function expression', () => {
@@ -21,10 +21,10 @@ describe('funcMacro', () => {
                     return __func__;
                   };`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect(result.code).toContain('"namedFunc"');
-    expect(result.code).not.toContain('__func__');
+    expect(result).toContain('"namedFunc"');
+    expect(result).not.toContain('__func__');
   });
 
   it('should replace __func__ in class method', () => {
@@ -35,19 +35,19 @@ describe('funcMacro', () => {
                        }
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect(result.code).toContain('"myMethod"');
-    expect(result.code).not.toContain('__func__');
+    expect(result).toContain('"myMethod"');
+    expect(result).not.toContain('__func__');
   });
 
   it('should use fallback when no function name found', () => {
     const plugin = funcMacro({ fallback: 'fallback_name' });
     const code = `console.log(__func__);`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect(result.code).toContain('"fallback_name"');
+    expect(result).toContain('"fallback_name"');
   });
 
   it('should handle custom identifier', () => {
@@ -56,10 +56,10 @@ describe('funcMacro', () => {
                       console.log(__function_name__);
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect(result.code).toContain('"testFunc"');
-    expect(result.code).not.toContain('__function_name__');
+    expect(result).toContain('"testFunc"');
+    expect(result).not.toContain('__function_name__');
   });
 
   it('should skip arrow functions', () => {
@@ -70,10 +70,10 @@ describe('funcMacro', () => {
                       };
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
     // Should find outerFunc, not the arrow function
-    expect(result.code).toContain('"outerFunc"');
+    expect(result).toContain('"outerFunc"');
   });
 
   it('should handle nested functions correctly', () => {
@@ -86,10 +86,10 @@ describe('funcMacro', () => {
                       }
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect(result.code).toContain('"outerFunc"');
-    expect(result.code).toContain('"innerFunc"');
+    expect(result).toContain('"outerFunc"');
+    expect(result).toContain('"innerFunc"');
   });
 
   it('should not transform files that do not match filter', () => {
@@ -98,7 +98,7 @@ describe('funcMacro', () => {
                       console.log(__func__);
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeNull();
   });
 
@@ -108,7 +108,7 @@ describe('funcMacro', () => {
                       console.log("hello");
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeNull();
   });
 
@@ -119,13 +119,12 @@ describe('funcMacro', () => {
                       console.log("Called from:", __func__);
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    const transformedCode = result.code;
-    expect(transformedCode).toContain('"testFunc"');
-    expect(transformedCode).not.toContain('__func__');
+    expect(result).toContain('"testFunc"');
+    expect(result).not.toContain('__func__');
     // Should replace both occurrences
-    expect((transformedCode.match(/"testFunc"/g) || []).length).toBe(2);
+    expect((result?.match(/"testFunc"/g) || []).length).toBe(2);
   });
 
   it('should handle method definitions with computed properties', () => {
@@ -136,9 +135,9 @@ describe('funcMacro', () => {
                       }
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
     // For computed properties, should fallback to default
-    expect(result.code).toContain('"__func__"');
+    expect(result).toContain('"__func__"');
   });
 });

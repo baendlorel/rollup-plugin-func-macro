@@ -44,7 +44,13 @@ describe('Template Literal Inline Expression Replacement', () => {
 
     const result = replaceIdentifiers(code, '__func__', 'unknown', true);
 
-    expect(result).toContain('`[__NAME__: openPopupWindow]openPopupWindow`');
+    expect(result).toBe(pr`function openPopupWindow() {
+                             try {
+                               // some code
+                             } catch (error) {
+                               console.error(\`[__NAME__: openPopupWindow]openPopupWindow Failed to open popup window:\`, error);
+                             }
+                           }`);
     expect(result).not.toContain('${__func__}');
   });
 

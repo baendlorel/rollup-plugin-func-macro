@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { funcMacro } from '@/func.js';
-import { pr, transform } from './utils.js';
+import { pr, apply } from './utils.js';
 
 describe('String replacement functionality', () => {
   it('should replace __func__ in string literals when stringReplace is true', () => {
@@ -9,10 +9,9 @@ describe('String replacement functionality', () => {
                       console.log("Current function: __func__");
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
-    expect(result).toBeTruthy();
-    expect(result.code).toContain('"Current function: testFunction"');
-    expect(result.code).not.toContain('__func__');
+    const result = apply(plugin, code, 'test.js');
+    expect(result).toContain('"Current function: testFunction"');
+    expect(result).not.toContain('__func__');
   });
 
   it('should NOT replace __func__ in string literals when stringReplace is false', () => {
@@ -21,7 +20,7 @@ describe('String replacement functionality', () => {
                       console.log("Current function: __func__");
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeNull(); // No transformation should occur
   });
 
@@ -31,7 +30,7 @@ describe('String replacement functionality', () => {
                       console.log(\`Current function: __func__\`);
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBe(pr`function testFunction() {
                              console.log(\`Current function: testFunction\`);
                            }`);
@@ -43,9 +42,9 @@ describe('String replacement functionality', () => {
                       console.log("__func__ called __func__");
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect(result.code).toContain('"testFunction called testFunction"');
+    expect(result).toContain('"testFunction called testFunction"');
   });
 
   it('should handle template literals with expressions', () => {
@@ -55,9 +54,9 @@ describe('String replacement functionality', () => {
                       console.log(\`Function __func__ with value \${x}\`);
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect(result.code).toContain('`Function testFunction with value ${x}`');
+    expect(result).toContain('`Function testFunction with value ${x}`');
   });
 
   it('should replace both identifier and string occurrences', () => {
@@ -67,11 +66,11 @@ describe('String replacement functionality', () => {
                       console.log("Function name is __func__");
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect(result.code).toContain('"testFunction"');
-    expect(result.code).toContain('"Function name is testFunction"');
-    expect(result.code).not.toContain('__func__');
+    expect(result).toContain('"testFunction"');
+    expect(result).toContain('"Function name is testFunction"');
+    expect(result).not.toContain('__func__');
   });
 
   it('should use custom identifier in strings', () => {
@@ -83,8 +82,8 @@ describe('String replacement functionality', () => {
                       console.log("Current: __FUNCTION_NAME__");
                     }`;
 
-    const result = transform(plugin, code, 'test.js');
+    const result = apply(plugin, code, 'test.js');
     expect(result).toBeTruthy();
-    expect(result.code).toContain('"Current: testFunction"');
+    expect(result).toContain('"Current: testFunction"');
   });
 });

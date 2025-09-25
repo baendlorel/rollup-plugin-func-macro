@@ -62,6 +62,19 @@ function walk(
 ) {
   const replacements: Replacement[] = [];
 
+  /**
+   * Push a new replacement if it doesn't already exist
+   */
+  const add = (o: { start: number; end: number; replacement: string; type: string }) => {
+    const { start, end, replacement, type } = o;
+    if (
+      replacements.some((r) => r.start === start && r.end === end && r.replacement === replacement)
+    ) {
+      return;
+    }
+    replacements.push({ start, end, replacement, type });
+  };
+
   const isInTemplateLiteralExpression = (node: PrivateIdentifier | Identifier) => {
     return code[node.start - 2] === '$' && code[node.start - 1] === '{' && code[node.end] === '}';
   };
@@ -74,14 +87,14 @@ function walk(
 
         // & Identifier might be in a template literal expression
         if (isInTemplateLiteralExpression(node)) {
-          replacements.push({
-            start: node.start - 2,
-            end: node.end + 1,
+          add({
+            start: node.start - 2, // Account for ${
+            end: node.end + 1, // Account for }
             replacement: functionName,
             type: node.type,
           });
         } else {
-          replacements.push({
+          add({
             start: node.start,
             end: node.end,
             replacement: `"${functionName}"`,
@@ -96,7 +109,7 @@ function walk(
       if (stringReplace && typeof node.value === 'string' && node.value.includes(identifier)) {
         const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
         const newValue = node.value.replaceAll(identifier, functionName);
-        replacements.push({
+        add({
           start: node.start,
           end: node.end,
           replacement: JSON.stringify(newValue),
@@ -106,53 +119,43 @@ function walk(
     },
 
     // Handle template literals if stringReplace is enabled
-    // TemplateLiteral(node: TemplateLiteral) {
-    //   if (stringReplace && node.quasis && node.expressions) {
-    //     const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
+    TemplateLiteral(node: TemplateLiteral) {
+      if (stringReplace && node.quasis && node.expressions) {
+        const functionName = findFunctionNameAtPosition(ast, node.start, fallback);
 
-    //     // Handle expressions that are just the identifier
-    //     for (const expr of node.expressions) {
-    //       if (expr.type !== 'Identifier' || expr.name !== identifier) {
-    //         continue;
-    //       }
+        // Handle expressions that are just the identifier
+        for (const expr of node.expressions) {
+          if (expr.type !== 'Identifier' || expr.name !== identifier) {
+            continue;
+          }
 
-    //       // & It is possible that this entry is handled in `Identifier` above
-    //       const replacement = replacements.find(
-    //         (r) => r.start === expr.start && r.end === expr.end && r.replacement === functionName
-    //       );
+          add({
+            start: expr.start - 2, // Account for ${
+            end: expr.end + 1, // Account for }
+            replacement: functionName,
+            type: node.type,
+          });
+        }
 
-    //       if (replacement) {
-    //         replacement.start -= 2; // Account for ${
-    //         replacement.end += 1; // Account for
-    //       } else {
-    //         replacements.push({
-    //           start: expr.start - 2, // Account for ${
-    //           end: expr.end + 1, // Account for }
-    //           replacement: functionName,
-    //           type: node.type,
-    //         });
-    //       }
-    //     }
+        // Handle each quasi (string part) separately
 
-    //     // Handle each quasi (string part) separately
+        for (let i = 0; i < node.quasis.length; i++) {
+          const quasi = node.quasis[i];
+          if (!quasi.value.raw.includes(identifier)) {
+            continue;
+          }
 
-    //     for (let i = 0; i < node.quasis.length; i++) {
-    //       const quasi = node.quasis[i];
-    //       if (!quasi.value.raw.includes(identifier)) {
-    //         continue;
-    //       }
-
-    //       const newRawValue = quasi.value.raw.replaceAll(identifier, functionName);
-    //       // Replace the raw content of this quasi
-    //       replacements.push({
-    //         start: quasi.start,
-    //         end: quasi.end,
-    //         replacement: newRawValue,
-    //         type: node.type,
-    //       });
-    //     }
-    //   }
-    // },
+          const newRawValue = quasi.value.raw.replaceAll(identifier, functionName);
+          // Replace the raw content of this quasi
+          add({
+            start: quasi.start,
+            end: quasi.end,
+            replacement: newRawValue,
+            type: node.type,
+          });
+        }
+      }
+    },
   });
 
   return replacements;
