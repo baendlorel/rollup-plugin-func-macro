@@ -1,6 +1,8 @@
+import { Macro } from '@/common.js';
+
 export function normalize(options: Partial<FuncMacroOptions> | undefined): FuncMacroOptions {
   const {
-    identifier = '__func__',
+    identifier = Macro.Func,
     include = ['**/*.js', '**/*.ts'],
     exclude = ['node_modules/**'],
     fallback = identifier,

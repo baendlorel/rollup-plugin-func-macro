@@ -12,3 +12,8 @@ export const enum Consts {
   AnonymousFunctionExpression = '[anonymous function expression]',
   AnonymousMethod = '[anonymous method]',
 }
+
+export const enum Macro {
+  Func = '__func__',
+  File = '__file__',
+}

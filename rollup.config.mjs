@@ -61,7 +61,7 @@ const options = [
       replace(replaceOpts),
       resolve(),
       commonjs(),
-      void terser({
+      terser({
         format: {
           comments: false, // remove comments
         },

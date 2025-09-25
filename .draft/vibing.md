@@ -69,3 +69,11 @@ MethodDefinition的handler里缺少对一般表达式的支持，如果这里是
 
 1. 为避免再次计算会产生副作用。把表达式的“字符串”来替换，而不是真的替换表达式
 2. 你不要创建新的test文件，只需考虑已有的tests/complex.test.ts文件里的测试用例:`it('should be literal'`
+
+---
+
+增加一个`__file__`宏，功能类似`__func__`，但表示当前文件名，要求如下：
+
+1. 替换规则和`__func__`相同，可复用
+2. 值为transform的入参`id`
+3. 可以配置自定义标识符，比如`__filename__`，默认值位于common.ts里的`Macro.File`字段
