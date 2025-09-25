@@ -32,9 +32,9 @@ describe('String replacement functionality', () => {
                     }`;
 
     const result = transform(plugin, code, 'test.js');
-    expect(result).toBeTruthy();
-    expect(result.code).toContain('`Current function: testFunction`');
-    expect(result.code).not.toContain('__func__');
+    expect(result).toBe(pr`function testFunction() {
+                             console.log(\`Current function: testFunction\`);
+                           }`);
   });
 
   it('should replace multiple __func__ occurrences in same string', () => {

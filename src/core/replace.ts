@@ -1,4 +1,4 @@
-import { Identifier, Literal, Node, parse, PrivateIdentifier, TemplateLiteral } from 'acorn';
+import { parse, Identifier, Literal, Node, PrivateIdentifier, TemplateLiteral } from 'acorn';
 import { simple } from 'acorn-walk';
 import { findFunctionNameAtPosition } from './find-name.js';
 
@@ -18,18 +18,48 @@ export function replaceIdentifiers(
   fallback: string,
   stringReplace: boolean = true
 ): string {
-  let ast: Node;
+  const ast = silentParse(code);
+  if (!ast) {
+    return code;
+  }
 
+  const replacements = walk(ast, code, identifier, fallback, stringReplace);
+
+  // Apply replacements from end to start to maintain positions
+  replacements.sort((a, b) => b.start - a.start);
+  console.log('Replacements:', replacements);
+  if (replacements.length) {
+    console.log('digit:', code.substring(replacements[0].start - 5, replacements[0].end + 5));
+  }
+
+  let result = code;
+  for (let i = 0; i < replacements.length; i++) {
+    const r = replacements[i];
+    result = result.slice(0, r.start) + r.replacement + result.slice(r.end);
+  }
+
+  return result;
+}
+
+function silentParse(code: string): Node | null {
   try {
-    ast = parse(code, {
+    return parse(code, {
       ecmaVersion: 'latest',
       sourceType: 'module',
     });
   } catch (error) {
     console.warn('__NAME__:', error);
-    return code;
+    return null;
   }
+}
 
+function walk(
+  ast: Node,
+  code: string,
+  identifier: string,
+  fallback: string,
+  stringReplace: boolean
+) {
   const replacements: Replacement[] = [];
 
   const isInTemplateLiteralExpression = (node: PrivateIdentifier | Identifier) => {
@@ -125,18 +155,5 @@ export function replaceIdentifiers(
     // },
   });
 
-  // Apply replacements from end to start to maintain positions
-  replacements.sort((a, b) => b.start - a.start);
-  console.log('Replacements:', replacements);
-  if (replacements.length) {
-    console.log('digit:', code.substring(replacements[0].start - 5, replacements[0].end + 5));
-  }
-
-  let result = code;
-  for (let i = 0; i < replacements.length; i++) {
-    const r = replacements[i];
-    result = result.slice(0, r.start) + r.replacement + result.slice(r.end);
-  }
-
-  return result;
+  return replacements;
 }
